@@ -1,5 +1,7 @@
 import { enumLabels } from "../generated/protocol";
 import type {
+  BaccaratOutcomeLabel,
+  BaccaratSideLabel,
   BlackjackActionLabel,
   BlackjackActionMaskLabel,
   BlackjackSessionPhaseLabel,
@@ -28,6 +30,14 @@ export function decodeModuleStatus(value: number | bigint): ModuleStatusLabel {
   return lookupEnumLabel("GameCatalog.ModuleStatus", value) as ModuleStatusLabel;
 }
 
+export function decodeBaccaratSide(value: number | bigint): BaccaratSideLabel {
+  return lookupEnumLabel("BaccaratTypes.BaccaratSide", value) as BaccaratSideLabel;
+}
+
+export function decodeBaccaratOutcome(value: number | bigint): BaccaratOutcomeLabel {
+  return lookupEnumLabel("BaccaratTypes.BaccaratOutcome", value) as BaccaratOutcomeLabel;
+}
+
 export function decodeBlackjackSessionPhase(value: number | bigint): BlackjackSessionPhaseLabel {
   return lookupEnumLabel("SingleDeckBlackjackEngine.SessionPhase", value) as BlackjackSessionPhaseLabel;
 }
@@ -54,4 +64,3 @@ export function decodeBlackjackActionMask(mask: number | bigint): BlackjackActio
 export function isPokerPlayerClockPhase(phase: PokerHandPhaseLabel) {
   return phase === "PreDrawBetting" || phase === "DrawDeclaration" || phase === "PostDrawBetting";
 }
-

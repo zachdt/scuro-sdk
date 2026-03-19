@@ -1,5 +1,7 @@
 export type * from "./internal/types";
 export {
+  decodeBaccaratOutcome,
+  decodeBaccaratSide,
   decodeBlackjackAction,
   decodeBlackjackActionMask,
   decodeBlackjackSessionPhase,

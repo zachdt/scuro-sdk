@@ -13,11 +13,17 @@ describe("registry helpers", () => {
       ...ANVIL_LOCAL_PROFILE.labels,
       ScuroToken: "0x1000000000000000000000000000000000000001",
       GameCatalog: "0x1000000000000000000000000000000000000005",
+      GameEngineRegistry: "0x1000000000000000000000000000000000000007",
+      SlotMachineController: "0x1000000000000000000000000000000000000013",
+      SuperBaccaratEngine: "0x1000000000000000000000000000000000000016",
       NumberPickerModuleId: "42",
       PokerExpressionTokenId: "7"
     });
 
     expect(normalized.contracts.ScuroToken).toBe("0x1000000000000000000000000000000000000001");
+    expect(normalized.contracts.GameEngineRegistry).toBe("0x1000000000000000000000000000000000000007");
+    expect(normalized.contracts.SlotMachineController).toBe("0x1000000000000000000000000000000000000013");
+    expect(normalized.contracts.SuperBaccaratEngine).toBe("0x1000000000000000000000000000000000000016");
     expect(normalized.actors.Player1).toBe(ANVIL_LOCAL_PROFILE.labels.Player1 as `0x${string}`);
     expect(normalized.moduleIds.NumberPickerModuleId).toBe(42n);
     expect(normalized.expressions.PokerExpressionTokenId).toBe(7n);

@@ -464,6 +464,160 @@ export const protocolManifest = {
         "verifyShowdown"
       ],
       "events": []
+    },
+    {
+      "name": "SlotMachineController",
+      "category": "controller",
+      "source": "src/controllers/SlotMachineController.sol",
+      "artifact": "out/SlotMachineController.sol/SlotMachineController.json",
+      "reference_doc": "docs/reference/slot-machine-controller.md",
+      "abi_path": "out/SlotMachineController.sol/SlotMachineController.json",
+      "functions": [
+        "engine",
+        "settle",
+        "spin",
+        "spinExpressionTokenId",
+        "spinSettled"
+      ],
+      "events": [
+        "SpinFinalized"
+      ]
+    },
+    {
+      "name": "SuperBaccaratController",
+      "category": "controller",
+      "source": "src/controllers/SuperBaccaratController.sol",
+      "artifact": "out/SuperBaccaratController.sol/SuperBaccaratController.json",
+      "reference_doc": "docs/game-module-user-flows.md",
+      "abi_path": "out/SuperBaccaratController.sol/SuperBaccaratController.json",
+      "functions": [
+        "engine",
+        "play",
+        "sessionExpressionTokenId",
+        "sessionSettled",
+        "settle"
+      ],
+      "events": [
+        "PlayStarted",
+        "SessionSettled"
+      ]
+    },
+    {
+      "name": "CheminDeFerController",
+      "category": "controller",
+      "source": "src/controllers/CheminDeFerController.sol",
+      "artifact": "out/CheminDeFerController.sol/CheminDeFerController.json",
+      "reference_doc": "docs/game-module-user-flows.md",
+      "abi_path": "out/CheminDeFerController.sol/CheminDeFerController.json",
+      "functions": [
+        "cancelTable",
+        "catalog",
+        "closeTable",
+        "engine",
+        "forceCloseTable",
+        "getTakerAmount",
+        "getTakers",
+        "matchedBankerRisk",
+        "openTable",
+        "playerTakeCap",
+        "settle",
+        "settlement",
+        "take"
+      ],
+      "events": [
+        "TableCanceled",
+        "TableClosed",
+        "TableOpened",
+        "TableSettled",
+        "TableTaken"
+      ]
+    },
+    {
+      "name": "SlotMachineEngine",
+      "category": "engine",
+      "source": "src/engines/SlotMachineEngine.sol",
+      "artifact": "out/SlotMachineEngine.sol/SlotMachineEngine.json",
+      "reference_doc": "docs/reference/slot-machine-engine.md",
+      "abi_path": "out/SlotMachineEngine.sol/SlotMachineEngine.json",
+      "functions": [
+        "catalog",
+        "engineType",
+        "getPreset",
+        "getPresetSummary",
+        "getSettlementOutcome",
+        "getSpin",
+        "getSpinResult",
+        "rawFulfillRandomWords",
+        "registerPreset",
+        "requestSpin",
+        "setPresetActive"
+      ],
+      "events": [
+        "BaseGameResolved",
+        "FreeSpinsResolved",
+        "HoldAndSpinResolved",
+        "JackpotAwarded",
+        "PickBonusResolved",
+        "PresetActiveSet",
+        "PresetRegistered",
+        "SpinRequested",
+        "SpinResolved"
+      ]
+    },
+    {
+      "name": "SuperBaccaratEngine",
+      "category": "engine",
+      "source": "src/engines/SuperBaccaratEngine.sol",
+      "artifact": "out/SuperBaccaratEngine.sol/SuperBaccaratEngine.json",
+      "reference_doc": "docs/game-module-user-flows.md",
+      "abi_path": "out/SuperBaccaratEngine.sol/SuperBaccaratEngine.json",
+      "functions": [
+        "catalog",
+        "engineType",
+        "getRound",
+        "getSettlementOutcome",
+        "payoutMultiplierWad",
+        "rawFulfillRandomWords",
+        "requestPlay"
+      ],
+      "events": [
+        "PlayRequested",
+        "PlayResolved"
+      ]
+    },
+    {
+      "name": "CheminDeFerEngine",
+      "category": "engine",
+      "source": "src/engines/CheminDeFerEngine.sol",
+      "artifact": "out/CheminDeFerEngine.sol/CheminDeFerEngine.json",
+      "reference_doc": "docs/game-module-user-flows.md",
+      "abi_path": "out/CheminDeFerEngine.sol/CheminDeFerEngine.json",
+      "functions": [
+        "catalog",
+        "engineType",
+        "getRound",
+        "isResolved",
+        "rawFulfillRandomWords",
+        "requestResolution"
+      ],
+      "events": [
+        "ResolutionCompleted",
+        "ResolutionRequested"
+      ]
+    },
+    {
+      "name": "ICheminDeFerEngine",
+      "category": "interface",
+      "source": "src/interfaces/ICheminDeFerEngine.sol",
+      "artifact": "out/ICheminDeFerEngine.sol/ICheminDeFerEngine.json",
+      "reference_doc": "docs/reference/gameplay-interfaces.md",
+      "abi_path": "out/ICheminDeFerEngine.sol/ICheminDeFerEngine.json",
+      "functions": [
+        "getRound",
+        "isResolved",
+        "requestResolution"
+      ],
+      "events": []
     }
   ],
   "enum_labels": {
@@ -510,6 +664,16 @@ export const protocolManifest = {
       "5": "PostDrawBetting",
       "6": "ShowdownProofPending",
       "7": "HandComplete"
+    },
+    "BaccaratTypes.BaccaratSide": {
+      "0": "Player",
+      "1": "Banker",
+      "2": "Tie"
+    },
+    "BaccaratTypes.BaccaratOutcome": {
+      "0": "PlayerWin",
+      "1": "BankerWin",
+      "2": "Tie"
     }
   },
   "proof_inputs": {
@@ -631,19 +795,26 @@ export const protocolManifest = {
       "GameDeploymentFactory",
       "DeveloperExpressionRegistry",
       "DeveloperRewards",
-      "ProtocolSettlement"
+      "ProtocolSettlement",
+      "GameEngineRegistry"
     ],
     "controllers": [
       "NumberPickerAdapter",
       "TournamentController",
       "PvPController",
-      "BlackjackController"
+      "BlackjackController",
+      "SlotMachineController",
+      "SuperBaccaratController",
+      "CheminDeFerController"
     ],
     "engines": [
       "NumberPickerEngine",
       "TournamentPokerEngine",
       "PvPPokerEngine",
-      "SingleDeckBlackjackEngine"
+      "SingleDeckBlackjackEngine",
+      "SlotMachineEngine",
+      "SuperBaccaratEngine",
+      "CheminDeFerEngine"
     ],
     "verifiers": [
       "TournamentPokerVerifierBundle",
@@ -714,6 +885,16 @@ export const enumLabels = {
     "5": "PostDrawBetting",
     "6": "ShowdownProofPending",
     "7": "HandComplete"
+  },
+  "BaccaratTypes.BaccaratSide": {
+    "0": "Player",
+    "1": "Banker",
+    "2": "Tie"
+  },
+  "BaccaratTypes.BaccaratOutcome": {
+    "0": "PlayerWin",
+    "1": "BankerWin",
+    "2": "Tie"
   }
 } as const;
 export const eventSignatures = {
@@ -1219,7 +1400,140 @@ export const eventSignatures = {
   "IPokerEngine": [],
   "IPokerZKEngine": [],
   "IPokerVerifierBundle": [],
-  "IBlackjackVerifierBundle": []
+  "IBlackjackVerifierBundle": [],
+  "SlotMachineController": [
+    {
+      "name": "SpinFinalized",
+      "signature": "SpinFinalized(uint256,address,uint256,uint256,uint256,uint256)",
+      "anonymous": false
+    }
+  ],
+  "SuperBaccaratController": [
+    {
+      "name": "PlayStarted",
+      "signature": "PlayStarted(uint256,address,uint256,uint256,uint8,bytes32)",
+      "anonymous": false
+    },
+    {
+      "name": "SessionSettled",
+      "signature": "SessionSettled(uint256,address,uint256,uint256,uint8)",
+      "anonymous": false
+    }
+  ],
+  "CheminDeFerController": [
+    {
+      "name": "TableCanceled",
+      "signature": "TableCanceled(uint256,address,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "TableClosed",
+      "signature": "TableClosed(uint256,address,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "TableOpened",
+      "signature": "TableOpened(uint256,address,uint256,uint256,uint256,bytes32)",
+      "anonymous": false
+    },
+    {
+      "name": "TableSettled",
+      "signature": "TableSettled(uint256,address,uint256,uint8,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "TableTaken",
+      "signature": "TableTaken(uint256,address,uint256,uint256)",
+      "anonymous": false
+    }
+  ],
+  "SlotMachineEngine": [
+    {
+      "name": "BaseGameResolved",
+      "signature": "BaseGameResolved(uint256,uint256,bool,bool,bool)",
+      "anonymous": false
+    },
+    {
+      "name": "FreeSpinsResolved",
+      "signature": "FreeSpinsResolved(uint256,uint8,uint256,uint8)",
+      "anonymous": false
+    },
+    {
+      "name": "HoldAndSpinResolved",
+      "signature": "HoldAndSpinResolved(uint256,uint8,uint8,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "JackpotAwarded",
+      "signature": "JackpotAwarded(uint256,uint8,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "PickBonusResolved",
+      "signature": "PickBonusResolved(uint256,uint8,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "PresetActiveSet",
+      "signature": "PresetActiveSet(uint256,bool)",
+      "anonymous": false
+    },
+    {
+      "name": "PresetRegistered",
+      "signature": "PresetRegistered(uint256,uint8,bytes32)",
+      "anonymous": false
+    },
+    {
+      "name": "RoleAdminChanged",
+      "signature": "RoleAdminChanged(bytes32,bytes32,bytes32)",
+      "anonymous": false
+    },
+    {
+      "name": "RoleGranted",
+      "signature": "RoleGranted(bytes32,address,address)",
+      "anonymous": false
+    },
+    {
+      "name": "RoleRevoked",
+      "signature": "RoleRevoked(bytes32,address,address)",
+      "anonymous": false
+    },
+    {
+      "name": "SpinRequested",
+      "signature": "SpinRequested(uint256,address,uint256,uint256,bytes32)",
+      "anonymous": false
+    },
+    {
+      "name": "SpinResolved",
+      "signature": "SpinResolved(uint256,uint256,uint256)",
+      "anonymous": false
+    }
+  ],
+  "SuperBaccaratEngine": [
+    {
+      "name": "PlayRequested",
+      "signature": "PlayRequested(uint256,address,bytes32,uint256,uint8)",
+      "anonymous": false
+    },
+    {
+      "name": "PlayResolved",
+      "signature": "PlayResolved(uint256,address,uint8,uint8,uint256)",
+      "anonymous": false
+    }
+  ],
+  "CheminDeFerEngine": [
+    {
+      "name": "ResolutionCompleted",
+      "signature": "ResolutionCompleted(uint256,uint256,uint8)",
+      "anonymous": false
+    },
+    {
+      "name": "ResolutionRequested",
+      "signature": "ResolutionRequested(uint256,uint256,bytes32)",
+      "anonymous": false
+    }
+  ],
+  "ICheminDeFerEngine": []
 } as const;
 export const proofInputs = {
   "IPokerVerifierBundle.InitialDealPublicInputs": [
@@ -14595,6 +14909,3388 @@ export const abis = {
       "name": "ReentrancyGuardReentrantCall",
       "inputs": []
     }
+  ],
+  "SlotMachineController": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "settlementAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "catalogAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "engineAddress",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "catalog",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract GameCatalog"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "engine",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract SlotMachineEngine"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "engineAddress",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "settle",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "settlement",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract ProtocolSettlement"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "spin",
+      "inputs": [
+        {
+          "name": "stake",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "expressionTokenId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "spinExpressionTokenId",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "spinSettled",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "SpinFinalized",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "expressionTokenId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "stake",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    }
+  ],
+  "SuperBaccaratController": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "settlementAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "catalogAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "engineAddress",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "catalog",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract GameCatalog"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "engine",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract SuperBaccaratEngine"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "engineAddress",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "play",
+      "inputs": [
+        {
+          "name": "wager",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "side",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "expressionTokenId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "sessionExpressionTokenId",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "sessionSettled",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "settle",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "settlement",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract ProtocolSettlement"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "PlayStarted",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "expressionTokenId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "wager",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "side",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum BaccaratTypes.BaccaratSide"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "SessionSettled",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "expressionTokenId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "outcome",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum BaccaratTypes.BaccaratOutcome"
+        }
+      ],
+      "anonymous": false
+    }
+  ],
+  "CheminDeFerController": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "settlementAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "catalogAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "engineAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "joinWindow",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "BANKER_RISK_PER_PLAYER_WAD",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "JOIN_WINDOW",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "cancelTable",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "catalog",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract GameCatalog"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "closeTable",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "engine",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract ICheminDeFerEngine"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "forceCloseTable",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "getTakerAmount",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "taker",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getTakers",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[]",
+          "internalType": "address[]"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "matchedBankerRisk",
+      "inputs": [
+        {
+          "name": "totalPlayerTake",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "nextTableId",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "openTable",
+      "inputs": [
+        {
+          "name": "bankerMaxBet",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "expressionTokenId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "playerTakeCap",
+      "inputs": [
+        {
+          "name": "bankerEscrow",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "settle",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "settlement",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract ProtocolSettlement"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "tables",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "banker",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "bankerEscrow",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "joinDeadline",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "totalPlayerTake",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "matchedBankerRisk",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "unmatchedBankerRefund",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "expressionTokenId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "internalType": "bool"
+        },
+        {
+          "name": "settled",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "take",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "event",
+      "name": "TableCanceled",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "banker",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "refund",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "TableClosed",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "caller",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "TableOpened",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "banker",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "expressionTokenId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "bankerEscrow",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "joinDeadline",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "TableSettled",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "banker",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "expressionTokenId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "outcome",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum BaccaratTypes.BaccaratOutcome"
+        },
+        {
+          "name": "matchedExposure",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "TableTaken",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "taker",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "totalTake",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "ReentrancyGuardReentrantCall",
+      "inputs": []
+    }
+  ],
+  "SlotMachineEngine": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "admin",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "catalogAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "vrfCoordinatorAddress",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "DEFAULT_ADMIN_ROLE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ENGINE_TYPE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MAX_HOLD_VALUES",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MAX_JACKPOT_TIERS",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MAX_PAYTABLE_ENTRIES",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MAX_PICK_AWARDS",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MAX_REELS",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MAX_ROWS",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MAX_SUPPORTED_SYMBOLS",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MAX_TOTAL_EVENTS",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "PRESET_MANAGER_ROLE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "STATUS_PENDING",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "STATUS_RESOLVED",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "VOL_EXTREME",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "VOL_HIGH",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "VOL_LOW",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "VOL_MEDIUM",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "VRF_COORDINATOR",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "WAYS_LEFT_TO_RIGHT",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "catalog",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract GameCatalog"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "engineType",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "getPreset",
+      "inputs": [
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct SlotMachineEngine.PresetConfig",
+          "components": [
+            {
+              "name": "volatilityTier",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "configHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "reelCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "rowCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "waysMode",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "minStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "maxStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "maxPayoutMultiplierBps",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "symbolIds",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "wildSymbolId",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "scatterSymbolId",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "bonusSymbolId",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "jackpotSymbolId",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "reelWeightOffsets",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "reelSymbolIds",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "reelSymbolWeights",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "paytableSymbolIds",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "paytableMatchCounts",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "paytableMultiplierBps",
+              "type": "uint32[]",
+              "internalType": "uint32[]"
+            },
+            {
+              "name": "freeSpinTriggerCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "freeSpinAwardCounts",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "maxFreeSpins",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxRetriggers",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "freeSpinMultiplierBps",
+              "type": "uint32",
+              "internalType": "uint32"
+            },
+            {
+              "name": "pickTriggerCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxPickReveals",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "pickAwardMultiplierBps",
+              "type": "uint32[]",
+              "internalType": "uint32[]"
+            },
+            {
+              "name": "holdTriggerCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "holdBoardSize",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "initialRespins",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxRespins",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "holdValueMultiplierBps",
+              "type": "uint32[]",
+              "internalType": "uint32[]"
+            },
+            {
+              "name": "jackpotTierIds",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "jackpotAwardMultiplierBps",
+              "type": "uint32[]",
+              "internalType": "uint32[]"
+            },
+            {
+              "name": "jackpotTierWeights",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "maxTotalEvents",
+              "type": "uint8",
+              "internalType": "uint8"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getPresetSummary",
+      "inputs": [
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "summary",
+          "type": "tuple",
+          "internalType": "struct SlotMachineEngine.PresetSummary",
+          "components": [
+            {
+              "name": "active",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "volatilityTier",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "configHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "reelCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "rowCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "waysMode",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "minStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "maxStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "maxPayoutMultiplierBps",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "maxFreeSpins",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxRetriggers",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxPickReveals",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxRespins",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxTotalEvents",
+              "type": "uint8",
+              "internalType": "uint8"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getRoleAdmin",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getSettlementOutcome",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "totalBurned",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "completed",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getSpin",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "spin",
+          "type": "tuple",
+          "internalType": "struct SlotMachineEngine.Spin",
+          "components": [
+            {
+              "name": "player",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "presetId",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "stake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "playRef",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "seed",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "finalPayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "status",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "resolved",
+              "type": "bool",
+              "internalType": "bool"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getSpinResult",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "result",
+          "type": "tuple",
+          "internalType": "struct SlotMachineEngine.SpinResult",
+          "components": [
+            {
+              "name": "baseGrid",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "wayWinSymbolIds",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "wayWinMatchCounts",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "wayWinWayCounts",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "wayWinPayouts",
+              "type": "uint256[]",
+              "internalType": "uint256[]"
+            },
+            {
+              "name": "triggeredFreeSpins",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "triggeredPickBonus",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "triggeredHoldAndSpin",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "freeSpinCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "freeSpinRetriggersUsed",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "freeSpinPayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "pickRevealCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "pickBonusPayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "holdFilledCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "holdRespinsUsed",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "holdAndSpinPayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "jackpotTierHit",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "jackpotPayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "totalEventCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "totalPayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "grantRole",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "hasRole",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "nextPresetId",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "presetActive",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "rawFulfillRandomWords",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "randomWords",
+          "type": "uint256[]",
+          "internalType": "uint256[]"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "registerPreset",
+      "inputs": [
+        {
+          "name": "config",
+          "type": "tuple",
+          "internalType": "struct SlotMachineEngine.PresetConfig",
+          "components": [
+            {
+              "name": "volatilityTier",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "configHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "reelCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "rowCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "waysMode",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "minStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "maxStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "maxPayoutMultiplierBps",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "symbolIds",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "wildSymbolId",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "scatterSymbolId",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "bonusSymbolId",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "jackpotSymbolId",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "reelWeightOffsets",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "reelSymbolIds",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "reelSymbolWeights",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "paytableSymbolIds",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "paytableMatchCounts",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "paytableMultiplierBps",
+              "type": "uint32[]",
+              "internalType": "uint32[]"
+            },
+            {
+              "name": "freeSpinTriggerCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "freeSpinAwardCounts",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "maxFreeSpins",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxRetriggers",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "freeSpinMultiplierBps",
+              "type": "uint32",
+              "internalType": "uint32"
+            },
+            {
+              "name": "pickTriggerCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxPickReveals",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "pickAwardMultiplierBps",
+              "type": "uint32[]",
+              "internalType": "uint32[]"
+            },
+            {
+              "name": "holdTriggerCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "holdBoardSize",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "initialRespins",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "maxRespins",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "holdValueMultiplierBps",
+              "type": "uint32[]",
+              "internalType": "uint32[]"
+            },
+            {
+              "name": "jackpotTierIds",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "jackpotAwardMultiplierBps",
+              "type": "uint32[]",
+              "internalType": "uint32[]"
+            },
+            {
+              "name": "jackpotTierWeights",
+              "type": "uint16[]",
+              "internalType": "uint16[]"
+            },
+            {
+              "name": "maxTotalEvents",
+              "type": "uint8",
+              "internalType": "uint8"
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "renounceRole",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "callerConfirmation",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "requestSpin",
+      "inputs": [
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "stake",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "revokeRole",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setPresetActive",
+      "inputs": [
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "totalPayouts",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "totalSpins",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "totalWagers",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "BaseGameResolved",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "freeSpinsTriggered",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        },
+        {
+          "name": "pickTriggered",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        },
+        {
+          "name": "holdTriggered",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "FreeSpinsResolved",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "awardedSpins",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "retriggersUsed",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "HoldAndSpinResolved",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "filled",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "respinsUsed",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "JackpotAwarded",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "tierId",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "uint8"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "PickBonusResolved",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "reveals",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "PresetActiveSet",
+      "inputs": [
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "PresetRegistered",
+      "inputs": [
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "volatilityTier",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "configHash",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "RoleAdminChanged",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "previousAdminRole",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "newAdminRole",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "RoleGranted",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "sender",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "RoleRevoked",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "sender",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "SpinRequested",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "presetId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "stake",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "SpinResolved",
+      "inputs": [
+        {
+          "name": "spinId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "seed",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "AccessControlBadConfirmation",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "AccessControlUnauthorizedAccount",
+      "inputs": [
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "neededRole",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ]
+    }
+  ],
+  "SuperBaccaratEngine": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "catalogAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "vrfCoordinatorAddress",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "BANKER_PAYOUT_WAD",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ENGINE_TYPE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "PLAYER_PAYOUT_WAD",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "PUSH_PAYOUT_WAD",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "TIE_PAYOUT_WAD",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "catalog",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract GameCatalog"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "engineType",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "getRound",
+      "inputs": [
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "playerCards",
+          "type": "uint8[3]",
+          "internalType": "uint8[3]"
+        },
+        {
+          "name": "bankerCards",
+          "type": "uint8[3]",
+          "internalType": "uint8[3]"
+        },
+        {
+          "name": "playerCardCount",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "bankerCardCount",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "playerTotal",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "bankerTotal",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "natural",
+          "type": "bool",
+          "internalType": "bool"
+        },
+        {
+          "name": "outcome",
+          "type": "uint8",
+          "internalType": "enum BaccaratTypes.BaccaratOutcome"
+        },
+        {
+          "name": "randomWord",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "fulfilled",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getSettlementOutcome",
+      "inputs": [
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "totalBurned",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "completed",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "payoutMultiplierWad",
+      "inputs": [
+        {
+          "name": "side",
+          "type": "uint8",
+          "internalType": "enum BaccaratTypes.BaccaratSide"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "rawFulfillRandomWords",
+      "inputs": [
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "randomWords",
+          "type": "uint256[]",
+          "internalType": "uint256[]"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "requestPlay",
+      "inputs": [
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "wager",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "side",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "totalGamesPlayed",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "totalPayouts",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "totalWagers",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "vrfCoordinator",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "PlayRequested",
+      "inputs": [
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "wager",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "side",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum BaccaratTypes.BaccaratSide"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "PlayResolved",
+      "inputs": [
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "outcome",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum BaccaratTypes.BaccaratOutcome"
+        },
+        {
+          "name": "side",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum BaccaratTypes.BaccaratSide"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    }
+  ],
+  "CheminDeFerEngine": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "catalogAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "vrfCoordinatorAddress",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "ENGINE_TYPE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "catalog",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract GameCatalog"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "engineType",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "getRound",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "playerCards",
+          "type": "uint8[3]",
+          "internalType": "uint8[3]"
+        },
+        {
+          "name": "bankerCards",
+          "type": "uint8[3]",
+          "internalType": "uint8[3]"
+        },
+        {
+          "name": "playerCardCount",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "bankerCardCount",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "playerTotal",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "bankerTotal",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "natural",
+          "type": "bool",
+          "internalType": "bool"
+        },
+        {
+          "name": "outcome",
+          "type": "uint8",
+          "internalType": "enum BaccaratTypes.BaccaratOutcome"
+        },
+        {
+          "name": "randomWord",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "resolved",
+          "type": "bool",
+          "internalType": "bool"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "isResolved",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "resolved",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "rawFulfillRandomWords",
+      "inputs": [
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "randomWords",
+          "type": "uint256[]",
+          "internalType": "uint256[]"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "requestResolution",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "requestToTableId",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "vrfCoordinator",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "ResolutionCompleted",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "outcome",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum BaccaratTypes.BaccaratOutcome"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "ResolutionRequested",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    }
+  ],
+  "ICheminDeFerEngine": [
+    {
+      "type": "function",
+      "name": "engineType",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "getRound",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "playerCards",
+          "type": "uint8[3]",
+          "internalType": "uint8[3]"
+        },
+        {
+          "name": "bankerCards",
+          "type": "uint8[3]",
+          "internalType": "uint8[3]"
+        },
+        {
+          "name": "playerCardCount",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "bankerCardCount",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "playerTotal",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "bankerTotal",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "natural",
+          "type": "bool",
+          "internalType": "bool"
+        },
+        {
+          "name": "outcome",
+          "type": "uint8",
+          "internalType": "enum BaccaratTypes.BaccaratOutcome"
+        },
+        {
+          "name": "randomWord",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "resolved",
+          "type": "bool",
+          "internalType": "bool"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "isResolved",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "resolved",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "requestResolution",
+      "inputs": [
+        {
+          "name": "tableId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "requestId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    }
   ]
 } as const;
 export const contractNames = [
@@ -14622,7 +18318,14 @@ export const contractNames = [
   "IPokerEngine",
   "IPokerZKEngine",
   "IPokerVerifierBundle",
-  "IBlackjackVerifierBundle"
+  "IBlackjackVerifierBundle",
+  "SlotMachineController",
+  "SuperBaccaratController",
+  "CheminDeFerController",
+  "SlotMachineEngine",
+  "SuperBaccaratEngine",
+  "CheminDeFerEngine",
+  "ICheminDeFerEngine"
 ] as const;
 export const deploymentOutputLabelGroups = {
   "core": [
@@ -14634,19 +18337,26 @@ export const deploymentOutputLabelGroups = {
     "GameDeploymentFactory",
     "DeveloperExpressionRegistry",
     "DeveloperRewards",
-    "ProtocolSettlement"
+    "ProtocolSettlement",
+    "GameEngineRegistry"
   ],
   "controllers": [
     "NumberPickerAdapter",
     "TournamentController",
     "PvPController",
-    "BlackjackController"
+    "BlackjackController",
+    "SlotMachineController",
+    "SuperBaccaratController",
+    "CheminDeFerController"
   ],
   "engines": [
     "NumberPickerEngine",
     "TournamentPokerEngine",
     "PvPPokerEngine",
-    "SingleDeckBlackjackEngine"
+    "SingleDeckBlackjackEngine",
+    "SlotMachineEngine",
+    "SuperBaccaratEngine",
+    "CheminDeFerEngine"
   ],
   "verifiers": [
     "TournamentPokerVerifierBundle",
@@ -14682,14 +18392,21 @@ export const deploymentOutputLabels = [
   "DeveloperExpressionRegistry",
   "DeveloperRewards",
   "ProtocolSettlement",
+  "GameEngineRegistry",
   "NumberPickerAdapter",
   "TournamentController",
   "PvPController",
   "BlackjackController",
+  "SlotMachineController",
+  "SuperBaccaratController",
+  "CheminDeFerController",
   "NumberPickerEngine",
   "TournamentPokerEngine",
   "PvPPokerEngine",
   "SingleDeckBlackjackEngine",
+  "SlotMachineEngine",
+  "SuperBaccaratEngine",
+  "CheminDeFerEngine",
   "TournamentPokerVerifierBundle",
   "PvPPokerVerifierBundle",
   "BlackjackVerifierBundle",
@@ -14716,14 +18433,21 @@ export const contractDeploymentLabels = [
   "DeveloperExpressionRegistry",
   "DeveloperRewards",
   "ProtocolSettlement",
+  "GameEngineRegistry",
   "NumberPickerAdapter",
   "TournamentController",
   "PvPController",
   "BlackjackController",
+  "SlotMachineController",
+  "SuperBaccaratController",
+  "CheminDeFerController",
   "NumberPickerEngine",
   "TournamentPokerEngine",
   "PvPPokerEngine",
   "SingleDeckBlackjackEngine",
+  "SlotMachineEngine",
+  "SuperBaccaratEngine",
+  "CheminDeFerEngine",
   "TournamentPokerVerifierBundle",
   "PvPPokerVerifierBundle",
   "BlackjackVerifierBundle"

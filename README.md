@@ -21,7 +21,9 @@ What is included:
 - root client via `createScuroClient(...)`
 - subpath-ready modules for `manifest`, `registry`, `contracts`, `flows`, `coordinator`, and `types`
 - generated protocol manifest, enum labels, event signatures, proof-input metadata, and ABI constants
-- typed tx builders for staking, governance, gameplay, settlement, proof submission, and supported factory deployments
+- typed tx builders for staking, governance, gameplay, settlement, engine-registry admin actions, proof submission, and supported factory deployments
+- runtime helpers for NumberPicker, Slot Machine, Super Baccarat, Chemin de Fer, poker, and blackjack
+- slot preset admin helpers and GameEngineRegistry read/write helpers
 - poker and blackjack coordinator executors with injected proof providers
 
 What is not included yet:
@@ -133,6 +135,12 @@ const stakingTxs = scuro.flows.staking.prepareApproveAndStake({
 });
 
 const blackjackActionTx = await scuro.flows.blackjack.prepareAction(7n, "doubleDown");
+const slotTx = scuro.flows.slotMachine.prepareSpin({
+  stake: 10n,
+  presetId: 1n,
+  playRef: "0x" + "33".repeat(32),
+  expressionTokenId: 7n
+});
 ```
 
 ### `coordinator`
@@ -165,7 +173,11 @@ More detail is in [docs/coordinators.md](./docs/coordinators.md).
 - staking approvals, stake, unstake, and delegation
 - governance reads for threshold, delay, period, quorum, and state
 - catalog reads for module metadata and launchability checks
+- GameEngineRegistry reads and admin writes
 - NumberPicker play/finalize helpers
+- Slot Machine spin/settle helpers and slot preset admin helpers
+- Super Baccarat play/settle helpers
+- Chemin de Fer table lifecycle helpers
 - PvP poker session create/settle helpers
 - tournament poker create/start/report helpers
 - blackjack start/action/timeout/settle helpers
@@ -178,21 +190,28 @@ Typed deployment-param encoders are included for:
 
 - NumberPicker
 - Blackjack
+- Super Baccarat
+- Slot Machine
 - Poker Single Draw 2-7
+- Chemin de Fer Baccarat
 
-Unsupported or underdocumented families should use the raw factory escape hatches.
+Unsupported or underdocumented families should use the raw factory escape hatches. For the new solo and chemin modules, gameplay helpers require explicit `expressionTokenId` values rather than relying on built-in local profile defaults.
 
 ## Generated metadata
 
 The SDK does not read the sibling Scuro repo at runtime.
 
-Instead, `bun run generate-protocol` copies and converts the checked-in metadata from:
+Instead, `bun run generate-protocol` uses the checked-in upstream generated metadata as a base, then supplements missing module surfaces from sibling protocol artifacts:
 
 - `../scuro/docs/generated/protocol-manifest.json`
 - `../scuro/docs/generated/enum-labels.json`
 - `../scuro/docs/generated/event-signatures.json`
 - `../scuro/docs/generated/proof-inputs.json`
 - `../scuro/docs/generated/contracts/*.abi.json`
+- `../scuro/out/SlotMachine*.json`
+- `../scuro/out/SuperBaccarat*.json`
+- `../scuro/out/CheminDeFer*.json`
+- `../scuro/out/ICheminDeFerEngine.sol/ICheminDeFerEngine.json`
 
 The generated output is written into [`src/generated`](./src/generated).
 

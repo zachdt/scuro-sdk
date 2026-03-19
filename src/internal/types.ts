@@ -39,6 +39,8 @@ export interface CreateScuroClientOptions {
 export type EnumName =
   | "GameCatalog.GameMode"
   | "GameCatalog.ModuleStatus"
+  | "BaccaratTypes.BaccaratSide"
+  | "BaccaratTypes.BaccaratOutcome"
   | "SingleDeckBlackjackEngine.SessionPhase"
   | "SingleDeckBlackjackEngine.Action"
   | "SingleDeckBlackjackEngine.ActionMask"
@@ -47,6 +49,8 @@ export type EnumName =
 
 export type GameModeLabel = "Solo" | "PvP" | "Tournament";
 export type ModuleStatusLabel = "LIVE" | "RETIRED" | "DISABLED";
+export type BaccaratSideLabel = "Player" | "Banker" | "Tie";
+export type BaccaratOutcomeLabel = "PlayerWin" | "BankerWin" | "Tie";
 export type BlackjackSessionPhaseLabel =
   | "Inactive"
   | "AwaitingInitialDeal"
@@ -94,6 +98,113 @@ export interface ContractDescriptor {
   abi: Abi;
   publicClient: PublicClient;
   walletClient: WalletClient | undefined;
+}
+
+export interface SlotMachinePresetConfigInput {
+  volatilityTier: number;
+  configHash: Hex;
+  reelCount: number;
+  rowCount: number;
+  waysMode: number;
+  minStake: bigint;
+  maxStake: bigint;
+  maxPayoutMultiplierBps: bigint;
+  symbolIds: readonly number[];
+  wildSymbolId: number;
+  scatterSymbolId: number;
+  bonusSymbolId: number;
+  jackpotSymbolId: number;
+  reelWeightOffsets: readonly number[];
+  reelSymbolIds: readonly number[];
+  reelSymbolWeights: readonly number[];
+  paytableSymbolIds: readonly number[];
+  paytableMatchCounts: readonly number[];
+  paytableMultiplierBps: readonly number[];
+  freeSpinTriggerCount: number;
+  freeSpinAwardCounts: readonly number[];
+  maxFreeSpins: number;
+  maxRetriggers: number;
+  freeSpinMultiplierBps: number;
+  pickTriggerCount: number;
+  maxPickReveals: number;
+  pickAwardMultiplierBps: readonly number[];
+  holdTriggerCount: number;
+  holdBoardSize: number;
+  initialRespins: number;
+  maxRespins: number;
+  holdValueMultiplierBps: readonly number[];
+  jackpotTierIds: readonly number[];
+  jackpotAwardMultiplierBps: readonly number[];
+  jackpotTierWeights: readonly number[];
+  maxTotalEvents: number;
+}
+
+export interface SlotMachinePresetSummary {
+  active: boolean;
+  volatilityTier: number;
+  configHash: Hex;
+  reelCount: number;
+  rowCount: number;
+  waysMode: number;
+  minStake: bigint;
+  maxStake: bigint;
+  maxPayoutMultiplierBps: bigint;
+  maxFreeSpins: number;
+  maxRetriggers: number;
+  maxPickReveals: number;
+  maxRespins: number;
+  maxTotalEvents: number;
+}
+
+export interface SlotMachineSpinInspection {
+  spin: any;
+  spinResult: any;
+  settlementOutcome: any;
+  settled: boolean;
+  expressionTokenId: bigint;
+  presetSummary: SlotMachinePresetSummary;
+}
+
+export interface SuperBaccaratRoundInspection {
+  playerCards: readonly [number, number, number];
+  bankerCards: readonly [number, number, number];
+  playerCardCount: number;
+  bankerCardCount: number;
+  playerTotal: number;
+  bankerTotal: number;
+  natural: boolean;
+  outcome: number;
+  outcomeLabel: BaccaratOutcomeLabel;
+  randomWord: bigint;
+  fulfilled: boolean;
+}
+
+export interface SuperBaccaratSessionInspection {
+  round: SuperBaccaratRoundInspection;
+  settlementOutcome: any;
+  sessionSettled: boolean;
+  expressionTokenId: bigint;
+}
+
+export interface CheminDeFerTableInspection {
+  table: any;
+  takers: Address[];
+  takerAmounts: Record<Address, bigint>;
+  round: any;
+  resolved: boolean;
+  playerTakeCap: bigint;
+  matchedBankerRisk: bigint;
+}
+
+export interface GameEngineMetadataInput {
+  engineType: Hex;
+  verifier: Address;
+  configHash: Hex;
+  developerRewardBps: number;
+  active: boolean;
+  supportsTournament: boolean;
+  supportsPvP: boolean;
+  supportsSolo: boolean;
 }
 
 export interface ScuroContractHelpers {

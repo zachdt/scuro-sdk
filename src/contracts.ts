@@ -11,12 +11,17 @@ import {
 } from "viem";
 
 import {
+  cheminDeFerControllerAbi,
+  cheminDeFerEngineAbi,
   blackjackControllerAbi,
   blackjackVerifierBundleAbi,
   developerExpressionRegistryAbi,
   developerRewardsAbi,
   gameCatalogAbi,
   gameDeploymentFactoryAbi,
+  gameEngineRegistryAbi,
+  slotMachineControllerAbi,
+  slotMachineEngineAbi,
   numberPickerAdapterAbi,
   numberPickerEngineAbi,
   pokerVerifierBundleAbi,
@@ -27,13 +32,24 @@ import {
   scuroTokenAbi,
   singleDeckBlackjackEngineAbi,
   singleDraw2To7EngineAbi,
+  superBaccaratControllerAbi,
+  superBaccaratEngineAbi,
   tournamentControllerAbi
 } from "./generated/abis";
 import { eventSignatures } from "./generated/protocol";
-import type { CreateScuroClientOptions, PreparedTransactionRequest, ScuroContractHelpers } from "./internal/types";
+import type {
+  CheminDeFerTableInspection,
+  CreateScuroClientOptions,
+  GameEngineMetadataInput,
+  PreparedTransactionRequest,
+  ScuroContractHelpers,
+  SlotMachinePresetConfigInput,
+  SuperBaccaratRoundInspection
+} from "./internal/types";
 import { InvalidLifecycleStateError, UnsupportedFactoryFamilyError } from "./internal/errors";
 import { ensureWalletClient, nowSeconds } from "./internal/utils";
 import {
+  decodeBaccaratOutcome,
   decodeBlackjackActionMask,
   decodeBlackjackSessionPhase,
   decodePokerHandPhase
@@ -54,14 +70,26 @@ const numberPickerDeploymentParams = parseAbiParameters(
 const blackjackDeploymentParams = parseAbiParameters(
   "address coordinator, uint256 defaultActionWindow, bytes32 configHash, uint16 developerRewardBps"
 );
+const baccaratDeploymentParams = parseAbiParameters(
+  "address vrfCoordinator, bytes32 configHash, uint16 developerRewardBps"
+);
+const slotMachineDeploymentParams = parseAbiParameters(
+  "address vrfCoordinator, bytes32 configHash, uint16 developerRewardBps"
+);
+const cheminDeFerDeploymentParams = parseAbiParameters(
+  "address vrfCoordinator, uint256 joinWindow, bytes32 configHash, uint16 developerRewardBps"
+);
 
 const FACTORY_FAMILIES = {
   solo: {
     NumberPicker: 0,
-    Blackjack: 1
+    Blackjack: 1,
+    SuperBaccarat: 2,
+    SlotMachine: 3
   },
   match: {
-    PokerSingleDraw2To7: 0
+    PokerSingleDraw2To7: 0,
+    CheminDeFerBaccarat: 1
   }
 } as const;
 
@@ -114,11 +142,20 @@ function createInstances({ publicClient, walletClient, deployment }: ContractCon
     protocolSettlement: () => descriptor(requireDeploymentAddress(deployment, "ProtocolSettlement"), protocolSettlementAbi as Abi),
     gameCatalog: () => descriptor(requireDeploymentAddress(deployment, "GameCatalog"), gameCatalogAbi as Abi),
     gameDeploymentFactory: () => descriptor(requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi),
+    gameEngineRegistry: () => descriptor(requireDeploymentAddress(deployment, "GameEngineRegistry"), gameEngineRegistryAbi as Abi),
     developerExpressionRegistry: () =>
       descriptor(requireDeploymentAddress(deployment, "DeveloperExpressionRegistry"), developerExpressionRegistryAbi as Abi),
     developerRewards: () => descriptor(requireDeploymentAddress(deployment, "DeveloperRewards"), developerRewardsAbi as Abi),
     numberPickerAdapter: () => descriptor(requireDeploymentAddress(deployment, "NumberPickerAdapter"), numberPickerAdapterAbi as Abi),
     numberPickerEngine: () => descriptor(requireDeploymentAddress(deployment, "NumberPickerEngine"), numberPickerEngineAbi as Abi),
+    slotMachineController: () => descriptor(requireDeploymentAddress(deployment, "SlotMachineController"), slotMachineControllerAbi as Abi),
+    slotMachineEngine: () => descriptor(requireDeploymentAddress(deployment, "SlotMachineEngine"), slotMachineEngineAbi as Abi),
+    superBaccaratController: () =>
+      descriptor(requireDeploymentAddress(deployment, "SuperBaccaratController"), superBaccaratControllerAbi as Abi),
+    superBaccaratEngine: () => descriptor(requireDeploymentAddress(deployment, "SuperBaccaratEngine"), superBaccaratEngineAbi as Abi),
+    cheminDeFerController: () =>
+      descriptor(requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi),
+    cheminDeFerEngine: () => descriptor(requireDeploymentAddress(deployment, "CheminDeFerEngine"), cheminDeFerEngineAbi as Abi),
     tournamentController: () => descriptor(requireDeploymentAddress(deployment, "TournamentController"), tournamentControllerAbi as Abi),
     tournamentPokerEngine: () => descriptor(requireDeploymentAddress(deployment, "TournamentPokerEngine"), singleDraw2To7EngineAbi as Abi),
     tournamentPokerVerifierBundle: () =>
@@ -152,7 +189,7 @@ export function decodeScuroEventLog(
     ProtocolSettlement: protocolSettlementAbi,
     GameCatalog: gameCatalogAbi,
     GameDeploymentFactory: gameDeploymentFactoryAbi,
-    GameEngineRegistry: [] as const,
+    GameEngineRegistry: gameEngineRegistryAbi,
     DeveloperExpressionRegistry: developerExpressionRegistryAbi,
     DeveloperRewards: developerRewardsAbi,
     ScuroToken: scuroTokenAbi,
@@ -160,6 +197,13 @@ export function decodeScuroEventLog(
     ScuroGovernor: scuroGovernorAbi,
     NumberPickerAdapter: numberPickerAdapterAbi,
     NumberPickerEngine: numberPickerEngineAbi,
+    SlotMachineController: slotMachineControllerAbi,
+    SlotMachineEngine: slotMachineEngineAbi,
+    SuperBaccaratController: superBaccaratControllerAbi,
+    SuperBaccaratEngine: superBaccaratEngineAbi,
+    CheminDeFerController: cheminDeFerControllerAbi,
+    CheminDeFerEngine: cheminDeFerEngineAbi,
+    ICheminDeFerEngine: cheminDeFerEngineAbi,
     TournamentController: tournamentControllerAbi,
     PvPController: pvPControllerAbi,
     BlackjackController: blackjackControllerAbi,
@@ -201,6 +245,30 @@ export function encodeBlackjackDeployment(params: {
   ]);
 }
 
+export function encodeSuperBaccaratDeployment(params: {
+  vrfCoordinator: Address;
+  configHash: Hex;
+  developerRewardBps: number;
+}) {
+  return encodeAbiParameters(baccaratDeploymentParams, [
+    params.vrfCoordinator,
+    params.configHash,
+    params.developerRewardBps
+  ]);
+}
+
+export function encodeSlotMachineDeployment(params: {
+  vrfCoordinator: Address;
+  configHash: Hex;
+  developerRewardBps: number;
+}) {
+  return encodeAbiParameters(slotMachineDeploymentParams, [
+    params.vrfCoordinator,
+    params.configHash,
+    params.developerRewardBps
+  ]);
+}
+
 export function encodePokerDeployment(params: {
   coordinator: Address;
   smallBlind: bigint;
@@ -216,6 +284,20 @@ export function encodePokerDeployment(params: {
     params.bigBlind,
     params.blindEscalationInterval,
     params.actionWindow,
+    params.configHash,
+    params.developerRewardBps
+  ]);
+}
+
+export function encodeCheminDeFerDeployment(params: {
+  vrfCoordinator: Address;
+  joinWindow: bigint;
+  configHash: Hex;
+  developerRewardBps: number;
+}) {
+  return encodeAbiParameters(cheminDeFerDeploymentParams, [
+    params.vrfCoordinator,
+    params.joinWindow,
     params.configHash,
     params.developerRewardBps
   ]);
@@ -309,6 +391,50 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
           args: [controller, engine]
         })
     },
+    engineRegistry: {
+      metadata: (engine: Address) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "GameEngineRegistry"),
+          abi: gameEngineRegistryAbi as Abi,
+          functionName: "getEngineMetadata",
+          args: [engine]
+        }),
+      isActive: (engine: Address) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "GameEngineRegistry"),
+          abi: gameEngineRegistryAbi as Abi,
+          functionName: "isActive",
+          args: [engine]
+        }),
+      isRegisteredForTournament: (engine: Address) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "GameEngineRegistry"),
+          abi: gameEngineRegistryAbi as Abi,
+          functionName: "isRegisteredForTournament",
+          args: [engine]
+        }),
+      isRegisteredForPvP: (engine: Address) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "GameEngineRegistry"),
+          abi: gameEngineRegistryAbi as Abi,
+          functionName: "isRegisteredForPvP",
+          args: [engine]
+        }),
+      isRegisteredForSolo: (engine: Address) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "GameEngineRegistry"),
+          abi: gameEngineRegistryAbi as Abi,
+          functionName: "isRegisteredForSolo",
+          args: [engine]
+        }),
+      developerRewardConfig: (engine: Address) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "GameEngineRegistry"),
+          abi: gameEngineRegistryAbi as Abi,
+          functionName: "getDeveloperRewardConfig",
+          args: [engine]
+        })
+    },
     numberPicker: {
       outcome: (requestId: bigint) =>
         options.publicClient.readContract({
@@ -337,6 +463,138 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
           abi: numberPickerAdapterAbi as Abi,
           functionName: "requestSettled",
           args: [requestId]
+        })
+    },
+    slotMachine: {
+      preset: (presetId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SlotMachineEngine"),
+          abi: slotMachineEngineAbi as Abi,
+          functionName: "getPreset",
+          args: [presetId]
+        }),
+      presetSummary: (presetId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SlotMachineEngine"),
+          abi: slotMachineEngineAbi as Abi,
+          functionName: "getPresetSummary",
+          args: [presetId]
+        }),
+      spin: (spinId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SlotMachineEngine"),
+          abi: slotMachineEngineAbi as Abi,
+          functionName: "getSpin",
+          args: [spinId]
+        }),
+      spinResult: (spinId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SlotMachineEngine"),
+          abi: slotMachineEngineAbi as Abi,
+          functionName: "getSpinResult",
+          args: [spinId]
+        }),
+      settlementOutcome: (spinId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SlotMachineEngine"),
+          abi: slotMachineEngineAbi as Abi,
+          functionName: "getSettlementOutcome",
+          args: [spinId]
+        }),
+      spinSettled: (spinId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SlotMachineController"),
+          abi: slotMachineControllerAbi as Abi,
+          functionName: "spinSettled",
+          args: [spinId]
+        }),
+      spinExpressionTokenId: (spinId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SlotMachineController"),
+          abi: slotMachineControllerAbi as Abi,
+          functionName: "spinExpressionTokenId",
+          args: [spinId]
+        })
+    },
+    superBaccarat: {
+      round: (sessionId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SuperBaccaratEngine"),
+          abi: superBaccaratEngineAbi as Abi,
+          functionName: "getRound",
+          args: [sessionId]
+        }),
+      settlementOutcome: (sessionId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SuperBaccaratEngine"),
+          abi: superBaccaratEngineAbi as Abi,
+          functionName: "getSettlementOutcome",
+          args: [sessionId]
+        }),
+      sessionSettled: (sessionId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SuperBaccaratController"),
+          abi: superBaccaratControllerAbi as Abi,
+          functionName: "sessionSettled",
+          args: [sessionId]
+        }),
+      sessionExpressionTokenId: (sessionId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "SuperBaccaratController"),
+          abi: superBaccaratControllerAbi as Abi,
+          functionName: "sessionExpressionTokenId",
+          args: [sessionId]
+        })
+    },
+    cheminDeFer: {
+      table: (tableId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "CheminDeFerController"),
+          abi: cheminDeFerControllerAbi as Abi,
+          functionName: "tables",
+          args: [tableId]
+        }),
+      takers: (tableId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "CheminDeFerController"),
+          abi: cheminDeFerControllerAbi as Abi,
+          functionName: "getTakers",
+          args: [tableId]
+        }),
+      takerAmount: (tableId: bigint, taker: Address) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "CheminDeFerController"),
+          abi: cheminDeFerControllerAbi as Abi,
+          functionName: "getTakerAmount",
+          args: [tableId, taker]
+        }),
+      playerTakeCap: (bankerEscrow: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "CheminDeFerController"),
+          abi: cheminDeFerControllerAbi as Abi,
+          functionName: "playerTakeCap",
+          args: [bankerEscrow]
+        }),
+      matchedBankerRisk: (totalPlayerTake: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "CheminDeFerController"),
+          abi: cheminDeFerControllerAbi as Abi,
+          functionName: "matchedBankerRisk",
+          args: [totalPlayerTake]
+        }),
+      round: (tableId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "CheminDeFerEngine"),
+          abi: cheminDeFerEngineAbi as Abi,
+          functionName: "getRound",
+          args: [tableId]
+        }),
+      isResolved: (tableId: bigint) =>
+        options.publicClient.readContract({
+          address: requireDeploymentAddress(deployment, "CheminDeFerEngine"),
+          abi: cheminDeFerEngineAbi as Abi,
+          functionName: "isResolved",
+          args: [tableId]
         })
     },
     pvp: {
@@ -493,6 +751,16 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
       buildTx(requireDeploymentAddress(deployment, "ScuroStakingToken"), scuroStakingTokenAbi as Abi, "delegate", [
         delegatee
       ]),
+    registerEngine: (engine: Address, metadata: GameEngineMetadataInput) =>
+      buildTx(requireDeploymentAddress(deployment, "GameEngineRegistry"), gameEngineRegistryAbi as Abi, "registerEngine", [
+        engine,
+        metadata
+      ]),
+    setEngineActive: (engine: Address, active: boolean) =>
+      buildTx(requireDeploymentAddress(deployment, "GameEngineRegistry"), gameEngineRegistryAbi as Abi, "setEngineActive", [
+        engine,
+        active
+      ]),
     numberPickerPlay: (args: {
       wager: bigint;
       selection: bigint;
@@ -508,6 +776,74 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
     numberPickerFinalize: (requestId: bigint) =>
       buildTx(requireDeploymentAddress(deployment, "NumberPickerAdapter"), numberPickerAdapterAbi as Abi, "finalize", [
         requestId
+      ]),
+    slotMachineSpin: (args: {
+      stake: bigint;
+      presetId: bigint;
+      playRef: Hex;
+      expressionTokenId: bigint;
+    }) =>
+      buildTx(requireDeploymentAddress(deployment, "SlotMachineController"), slotMachineControllerAbi as Abi, "spin", [
+        args.stake,
+        args.presetId,
+        args.playRef,
+        args.expressionTokenId
+      ]),
+    slotMachineSettle: (spinId: bigint) =>
+      buildTx(requireDeploymentAddress(deployment, "SlotMachineController"), slotMachineControllerAbi as Abi, "settle", [spinId]),
+    slotMachineRegisterPreset: (config: SlotMachinePresetConfigInput) =>
+      buildTx(requireDeploymentAddress(deployment, "SlotMachineEngine"), slotMachineEngineAbi as Abi, "registerPreset", [config]),
+    slotMachineSetPresetActive: (presetId: bigint, active: boolean) =>
+      buildTx(requireDeploymentAddress(deployment, "SlotMachineEngine"), slotMachineEngineAbi as Abi, "setPresetActive", [
+        presetId,
+        active
+      ]),
+    superBaccaratPlay: (args: {
+      wager: bigint;
+      side: number;
+      playRef: Hex;
+      expressionTokenId: bigint;
+    }) =>
+      buildTx(requireDeploymentAddress(deployment, "SuperBaccaratController"), superBaccaratControllerAbi as Abi, "play", [
+        args.wager,
+        args.side,
+        args.playRef,
+        args.expressionTokenId
+      ]),
+    superBaccaratSettle: (sessionId: bigint) =>
+      buildTx(requireDeploymentAddress(deployment, "SuperBaccaratController"), superBaccaratControllerAbi as Abi, "settle", [
+        sessionId
+      ]),
+    cheminDeFerOpenTable: (args: {
+      bankerMaxBet: bigint;
+      playRef: Hex;
+      expressionTokenId: bigint;
+    }) =>
+      buildTx(requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "openTable", [
+        args.bankerMaxBet,
+        args.playRef,
+        args.expressionTokenId
+      ]),
+    cheminDeFerTake: (tableId: bigint, amount: bigint) =>
+      buildTx(requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "take", [
+        tableId,
+        amount
+      ]),
+    cheminDeFerCloseTable: (tableId: bigint) =>
+      buildTx(requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "closeTable", [
+        tableId
+      ]),
+    cheminDeFerForceCloseTable: (tableId: bigint) =>
+      buildTx(requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "forceCloseTable", [
+        tableId
+      ]),
+    cheminDeFerCancelTable: (tableId: bigint) =>
+      buildTx(requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "cancelTable", [
+        tableId
+      ]),
+    cheminDeFerSettle: (tableId: bigint) =>
+      buildTx(requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "settle", [
+        tableId
       ]),
     createTournament: (args: {
       entryFee: bigint;
@@ -787,10 +1123,25 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         FACTORY_FAMILIES.solo.Blackjack,
         encodeBlackjackDeployment(params)
       ]),
+    deploySuperBaccaratModule: (params: Parameters<typeof encodeSuperBaccaratDeployment>[0]) =>
+      buildTx(requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deploySoloModule", [
+        FACTORY_FAMILIES.solo.SuperBaccarat,
+        encodeSuperBaccaratDeployment(params)
+      ]),
+    deploySlotMachineModule: (params: Parameters<typeof encodeSlotMachineDeployment>[0]) =>
+      buildTx(requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deploySoloModule", [
+        FACTORY_FAMILIES.solo.SlotMachine,
+        encodeSlotMachineDeployment(params)
+      ]),
     deployPokerPvPModule: (params: Parameters<typeof encodePokerDeployment>[0]) =>
       buildTx(requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deployPvPModule", [
         FACTORY_FAMILIES.match.PokerSingleDraw2To7,
         encodePokerDeployment(params)
+      ]),
+    deployCheminDeFerModule: (params: Parameters<typeof encodeCheminDeFerDeployment>[0]) =>
+      buildTx(requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deployPvPModule", [
+        FACTORY_FAMILIES.match.CheminDeFerBaccarat,
+        encodeCheminDeFerDeployment(params)
       ]),
     deployPokerTournamentModule: (params: Parameters<typeof encodePokerDeployment>[0]) =>
       buildTx(requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deployTournamentModule", [
@@ -798,7 +1149,7 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         encodePokerDeployment(params)
       ]),
     deploySoloModuleRaw: (family: number, deploymentParams: Hex) => {
-      if (family > FACTORY_FAMILIES.solo.Blackjack) {
+      if (family > FACTORY_FAMILIES.solo.SlotMachine) {
         throw new UnsupportedFactoryFamilyError(String(family));
       }
       return buildTx(requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deploySoloModule", [
@@ -807,7 +1158,7 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
       ]);
     },
     deployPvPModuleRaw: (family: number, deploymentParams: Hex) => {
-      if (family !== FACTORY_FAMILIES.match.PokerSingleDraw2To7) {
+      if (family > FACTORY_FAMILIES.match.CheminDeFerBaccarat) {
         throw new UnsupportedFactoryFamilyError(String(family));
       }
       return buildTx(requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deployPvPModule", [
@@ -843,6 +1194,16 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
       writeContract(options.walletClient, requireDeploymentAddress(deployment, "ScuroStakingToken"), scuroStakingTokenAbi as Abi, "unstake", [amount]),
     delegateGovernance: (delegatee: Address) =>
       writeContract(options.walletClient, requireDeploymentAddress(deployment, "ScuroStakingToken"), scuroStakingTokenAbi as Abi, "delegate", [delegatee]),
+    registerEngine: (engine: Address, metadata: GameEngineMetadataInput) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "GameEngineRegistry"), gameEngineRegistryAbi as Abi, "registerEngine", [
+        engine,
+        metadata
+      ]),
+    setEngineActive: (engine: Address, active: boolean) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "GameEngineRegistry"), gameEngineRegistryAbi as Abi, "setEngineActive", [
+        engine,
+        active
+      ]),
     numberPickerPlay: (args: Parameters<typeof encode.numberPickerPlay>[0]) =>
       writeContract(options.walletClient, encode.numberPickerPlay(args).to, numberPickerAdapterAbi as Abi, "play", [
         args.wager,
@@ -852,6 +1213,50 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
       ]),
     numberPickerFinalize: (requestId: bigint) =>
       writeContract(options.walletClient, requireDeploymentAddress(deployment, "NumberPickerAdapter"), numberPickerAdapterAbi as Abi, "finalize", [requestId]),
+    slotMachineSpin: (args: Parameters<typeof encode.slotMachineSpin>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "SlotMachineController"), slotMachineControllerAbi as Abi, "spin", [
+        args.stake,
+        args.presetId,
+        args.playRef,
+        args.expressionTokenId
+      ]),
+    slotMachineSettle: (spinId: bigint) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "SlotMachineController"), slotMachineControllerAbi as Abi, "settle", [spinId]),
+    slotMachineRegisterPreset: (config: SlotMachinePresetConfigInput) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "SlotMachineEngine"), slotMachineEngineAbi as Abi, "registerPreset", [config]),
+    slotMachineSetPresetActive: (presetId: bigint, active: boolean) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "SlotMachineEngine"), slotMachineEngineAbi as Abi, "setPresetActive", [
+        presetId,
+        active
+      ]),
+    superBaccaratPlay: (args: Parameters<typeof encode.superBaccaratPlay>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "SuperBaccaratController"), superBaccaratControllerAbi as Abi, "play", [
+        args.wager,
+        args.side,
+        args.playRef,
+        args.expressionTokenId
+      ]),
+    superBaccaratSettle: (sessionId: bigint) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "SuperBaccaratController"), superBaccaratControllerAbi as Abi, "settle", [sessionId]),
+    cheminDeFerOpenTable: (args: Parameters<typeof encode.cheminDeFerOpenTable>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "openTable", [
+        args.bankerMaxBet,
+        args.playRef,
+        args.expressionTokenId
+      ]),
+    cheminDeFerTake: (tableId: bigint, amount: bigint) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "take", [
+        tableId,
+        amount
+      ]),
+    cheminDeFerCloseTable: (tableId: bigint) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "closeTable", [tableId]),
+    cheminDeFerForceCloseTable: (tableId: bigint) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "forceCloseTable", [tableId]),
+    cheminDeFerCancelTable: (tableId: bigint) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "cancelTable", [tableId]),
+    cheminDeFerSettle: (tableId: bigint) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "CheminDeFerController"), cheminDeFerControllerAbi as Abi, "settle", [tableId]),
     createTournament: (args: Parameters<typeof encode.createTournament>[0]) =>
       writeContract(options.walletClient, requireDeploymentAddress(deployment, "TournamentController"), tournamentControllerAbi as Abi, "createTournament", [
         args.entryFee,
@@ -998,6 +1403,41 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.activeHandIndex,
         args.handStatuses,
         args.proof
+      ]),
+    deployNumberPickerModule: (params: Parameters<typeof encodeNumberPickerDeployment>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deploySoloModule", [
+        FACTORY_FAMILIES.solo.NumberPicker,
+        encodeNumberPickerDeployment(params)
+      ]),
+    deployBlackjackModule: (params: Parameters<typeof encodeBlackjackDeployment>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deploySoloModule", [
+        FACTORY_FAMILIES.solo.Blackjack,
+        encodeBlackjackDeployment(params)
+      ]),
+    deploySuperBaccaratModule: (params: Parameters<typeof encodeSuperBaccaratDeployment>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deploySoloModule", [
+        FACTORY_FAMILIES.solo.SuperBaccarat,
+        encodeSuperBaccaratDeployment(params)
+      ]),
+    deploySlotMachineModule: (params: Parameters<typeof encodeSlotMachineDeployment>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deploySoloModule", [
+        FACTORY_FAMILIES.solo.SlotMachine,
+        encodeSlotMachineDeployment(params)
+      ]),
+    deployPokerPvPModule: (params: Parameters<typeof encodePokerDeployment>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deployPvPModule", [
+        FACTORY_FAMILIES.match.PokerSingleDraw2To7,
+        encodePokerDeployment(params)
+      ]),
+    deployCheminDeFerModule: (params: Parameters<typeof encodeCheminDeFerDeployment>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deployPvPModule", [
+        FACTORY_FAMILIES.match.CheminDeFerBaccarat,
+        encodeCheminDeFerDeployment(params)
+      ]),
+    deployPokerTournamentModule: (params: Parameters<typeof encodePokerDeployment>[0]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "GameDeploymentFactory"), gameDeploymentFactoryAbi as Abi, "deployTournamentModule", [
+        FACTORY_FAMILIES.match.PokerSingleDraw2To7,
+        encodePokerDeployment(params)
       ])
   };
 
@@ -1037,6 +1477,84 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
     };
   }
 
+  function toSuperBaccaratRound(round: any): SuperBaccaratRoundInspection {
+    return {
+      playerCards: round[0] ?? round.playerCards,
+      bankerCards: round[1] ?? round.bankerCards,
+      playerCardCount: Number(round[2] ?? round.playerCardCount),
+      bankerCardCount: Number(round[3] ?? round.bankerCardCount),
+      playerTotal: Number(round[4] ?? round.playerTotal),
+      bankerTotal: Number(round[5] ?? round.bankerTotal),
+      natural: Boolean(round[6] ?? round.natural),
+      outcome: Number(round[7] ?? round.outcome),
+      outcomeLabel: decodeBaccaratOutcome(round[7] ?? round.outcome),
+      randomWord: BigInt(round[8] ?? round.randomWord),
+      fulfilled: Boolean(round[9] ?? round.fulfilled)
+    };
+  }
+
+  async function inspectSlotMachineSpin(spinId: bigint) {
+    const [spin, spinResult, settlementOutcome, settled, expressionTokenId] = await Promise.all([
+      read.slotMachine.spin(spinId) as Promise<any>,
+      read.slotMachine.spinResult(spinId) as Promise<any>,
+      read.slotMachine.settlementOutcome(spinId) as Promise<any>,
+      read.slotMachine.spinSettled(spinId) as Promise<any>,
+      read.slotMachine.spinExpressionTokenId(spinId) as Promise<any>
+    ]);
+    const presetSummary = await read.slotMachine.presetSummary(spin.presetId);
+
+    return {
+      spin,
+      spinResult,
+      settlementOutcome,
+      settled,
+      expressionTokenId,
+      presetSummary
+    };
+  }
+
+  async function inspectSuperBaccaratSession(sessionId: bigint) {
+    const [round, settlementOutcome, sessionSettled, expressionTokenId] = await Promise.all([
+      read.superBaccarat.round(sessionId) as Promise<any>,
+      read.superBaccarat.settlementOutcome(sessionId) as Promise<any>,
+      read.superBaccarat.sessionSettled(sessionId) as Promise<any>,
+      read.superBaccarat.sessionExpressionTokenId(sessionId) as Promise<any>
+    ]);
+
+    return {
+      round: toSuperBaccaratRound(round),
+      settlementOutcome,
+      sessionSettled,
+      expressionTokenId
+    };
+  }
+
+  async function inspectCheminDeFerTable(tableId: bigint): Promise<CheminDeFerTableInspection> {
+    const [table, takers, round, resolved] = await Promise.all([
+      read.cheminDeFer.table(tableId) as Promise<any>,
+      read.cheminDeFer.takers(tableId) as Promise<Address[]>,
+      read.cheminDeFer.round(tableId) as Promise<any>,
+      read.cheminDeFer.isResolved(tableId) as Promise<any>
+    ]);
+    const [playerTakeCap, matchedBankerRisk, takerAmounts] = await Promise.all([
+      read.cheminDeFer.playerTakeCap(table.bankerEscrow) as Promise<any>,
+      read.cheminDeFer.matchedBankerRisk(table.totalPlayerTake) as Promise<any>,
+      Promise.all(
+        takers.map(async (taker) => [taker, await read.cheminDeFer.takerAmount(tableId, taker)] as const)
+      )
+    ]);
+
+    return {
+      table,
+      takers,
+      takerAmounts: Object.fromEntries(takerAmounts) as Record<Address, bigint>,
+      round,
+      resolved,
+      playerTakeCap,
+      matchedBankerRisk
+    };
+  }
+
   function assertBlackjackPlayerAction(snapshot: Awaited<ReturnType<typeof inspectBlackjackSession>>, expectedActionMask: "ALLOW_HIT" | "ALLOW_STAND" | "ALLOW_DOUBLE" | "ALLOW_SPLIT") {
     if (snapshot.phaseLabel !== "AwaitingPlayerAction") {
       throw new InvalidLifecycleStateError(`Blackjack session is not awaiting a player action. Current phase: ${snapshot.phaseLabel}`);
@@ -1060,7 +1578,10 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
     write,
     inspect: {
       blackjackSession: inspectBlackjackSession,
-      pokerGame: inspectPokerGame
+      pokerGame: inspectPokerGame,
+      slotMachineSpin: inspectSlotMachineSpin,
+      superBaccaratSession: inspectSuperBaccaratSession,
+      cheminDeFerTable: inspectCheminDeFerTable
     },
     helpers: {
       nowSeconds,

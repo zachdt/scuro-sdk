@@ -63,6 +63,57 @@ export function createFlowHelpers(options: CreateScuroClientOptions): ScuroFlowH
         };
       }
     },
+    slotMachine: {
+      prepareSpin: contracts.encode.slotMachineSpin,
+      prepareRegisterPreset: contracts.encode.slotMachineRegisterPreset,
+      prepareSetPresetActive: contracts.encode.slotMachineSetPresetActive,
+      prepareSettlement: async (spinId: bigint) => {
+        const snapshot = await contracts.inspect.slotMachineSpin(spinId);
+        if (snapshot.settled) {
+          throw new InvalidLifecycleStateError("Slot spin is already settled.", { spinId: spinId.toString() });
+        }
+        if (!snapshot.settlementOutcome.completed) {
+          throw new InvalidLifecycleStateError("Slot spin is not ready to settle.", { spinId: spinId.toString() });
+        }
+        return contracts.encode.slotMachineSettle(spinId);
+      },
+      inspectSpin: contracts.inspect.slotMachineSpin
+    },
+    superBaccarat: {
+      preparePlay: contracts.encode.superBaccaratPlay,
+      prepareSettlement: async (sessionId: bigint) => {
+        const snapshot = await contracts.inspect.superBaccaratSession(sessionId);
+        if (snapshot.sessionSettled) {
+          throw new InvalidLifecycleStateError("Super baccarat session is already settled.", { sessionId: sessionId.toString() });
+        }
+        if (!snapshot.settlementOutcome.completed) {
+          throw new InvalidLifecycleStateError("Super baccarat session is not ready to settle.", { sessionId: sessionId.toString() });
+        }
+        return contracts.encode.superBaccaratSettle(sessionId);
+      },
+      inspectSession: contracts.inspect.superBaccaratSession
+    },
+    cheminDeFer: {
+      prepareOpenTable: contracts.encode.cheminDeFerOpenTable,
+      prepareTake: contracts.encode.cheminDeFerTake,
+      prepareCloseTable: contracts.encode.cheminDeFerCloseTable,
+      prepareForceCloseTable: contracts.encode.cheminDeFerForceCloseTable,
+      prepareCancelTable: contracts.encode.cheminDeFerCancelTable,
+      prepareSettlement: async (tableId: bigint) => {
+        const snapshot = await contracts.inspect.cheminDeFerTable(tableId);
+        if (snapshot.table.settled) {
+          throw new InvalidLifecycleStateError("Chemin de fer table is already settled.", { tableId: tableId.toString() });
+        }
+        if (!snapshot.table.closed) {
+          throw new InvalidLifecycleStateError("Chemin de fer table is still open.", { tableId: tableId.toString() });
+        }
+        if (!snapshot.resolved) {
+          throw new InvalidLifecycleStateError("Chemin de fer table is not ready to settle.", { tableId: tableId.toString() });
+        }
+        return contracts.encode.cheminDeFerSettle(tableId);
+      },
+      inspectTable: contracts.inspect.cheminDeFerTable
+    },
     pvp: {
       prepareCreateSession: contracts.encode.createPvPSession,
       prepareSettlement: async (sessionId: bigint) => {

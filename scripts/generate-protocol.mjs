@@ -1,6 +1,12 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import {
+  supplementalContracts,
+  supplementalDeploymentOutputLabels,
+  supplementalEnumLabels
+} from "./protocol-supplement.mjs";
+
 const repoRoot = process.cwd();
 const protocolRoot = process.env.SCURO_PROTOCOL_ROOT
   ? path.resolve(process.env.SCURO_PROTOCOL_ROOT)
@@ -26,12 +32,35 @@ async function readJson(filePath) {
   return JSON.parse(await readFile(filePath, "utf8"));
 }
 
+function publicMembers(source) {
+  const functions = source
+    .match(/function\s+([A-Za-z0-9_]+)\s*\([^)]*\)(?:(?!function).)*?\b(?:public|external)\b/gms)
+    ?.map((match) => match.match(/function\s+([A-Za-z0-9_]+)/)?.[1])
+    .filter(Boolean)
+    .sort();
+  const events = [...source.matchAll(/event\s+([A-Za-z0-9_]+)\s*\(/g)].map((match) => match[1]).sort();
+
+  return {
+    functions: [...new Set(functions ?? [])],
+    events: [...new Set(events)]
+  };
+}
+
+function eventSignature(item) {
+  const inputTypes = (item.inputs ?? []).map((input) => input.type);
+  return `${item.name}(${inputTypes.join(",")})`;
+}
+
+function mergeUnique(base, extras) {
+  return [...new Set([...base, ...extras])];
+}
+
 async function main() {
   await mkdir(outputRoot, { recursive: true });
 
-  const protocolManifest = await readJson(path.join(docsGeneratedRoot, "protocol-manifest.json"));
-  const enumLabels = await readJson(path.join(docsGeneratedRoot, "enum-labels.json"));
-  const eventSignatures = await readJson(path.join(docsGeneratedRoot, "event-signatures.json"));
+  const baseProtocolManifest = await readJson(path.join(docsGeneratedRoot, "protocol-manifest.json"));
+  const baseEnumLabels = await readJson(path.join(docsGeneratedRoot, "enum-labels.json"));
+  const baseEventSignatures = await readJson(path.join(docsGeneratedRoot, "event-signatures.json"));
   const proofInputs = await readJson(path.join(docsGeneratedRoot, "proof-inputs.json"));
 
   const abiFiles = (await readdir(contractsRoot))
@@ -44,8 +73,67 @@ async function main() {
     abis[contractName] = await readJson(path.join(contractsRoot, file));
   }
 
+  const supplementalContractMetadata = [];
+  const supplementalEventSignatures = {};
+
+  for (const contract of supplementalContracts) {
+    const artifactPath = path.join(protocolRoot, contract.artifact);
+    const sourcePath = path.join(protocolRoot, contract.source);
+    const artifact = await readJson(artifactPath);
+    const sourceText = await readFile(sourcePath, "utf8");
+    const members = publicMembers(sourceText);
+
+    abis[contract.name] = artifact.abi;
+    supplementalEventSignatures[contract.name] = artifact.abi
+      .filter((item) => item.type === "event")
+      .map((item) => ({
+        name: item.name,
+        signature: eventSignature(item),
+        anonymous: Boolean(item.anonymous)
+      }));
+
+    supplementalContractMetadata.push({
+      name: contract.name,
+      category: contract.category,
+      source: contract.source,
+      artifact: contract.artifact,
+      reference_doc: contract.reference_doc,
+      abi_path: contract.artifact,
+      functions: members.functions,
+      events: members.events
+    });
+  }
+
+  const groupedLabels = {
+    ...baseProtocolManifest.deployment_output_labels,
+    core: mergeUnique(
+      baseProtocolManifest.deployment_output_labels.core,
+      supplementalDeploymentOutputLabels.core ?? []
+    ),
+    controllers: mergeUnique(
+      baseProtocolManifest.deployment_output_labels.controllers,
+      supplementalDeploymentOutputLabels.controllers
+    ),
+    engines: mergeUnique(
+      baseProtocolManifest.deployment_output_labels.engines,
+      supplementalDeploymentOutputLabels.engines
+    )
+  };
+  const enumLabels = {
+    ...baseEnumLabels,
+    ...supplementalEnumLabels
+  };
+  const eventSignatures = {
+    ...baseEventSignatures,
+    ...supplementalEventSignatures
+  };
+  const protocolManifest = {
+    ...baseProtocolManifest,
+    contracts: [...baseProtocolManifest.contracts, ...supplementalContractMetadata],
+    enum_labels: enumLabels,
+    deployment_output_labels: groupedLabels
+  };
   const contractNames = protocolManifest.contracts.map((contract) => contract.name);
-  const groupedLabels = protocolManifest.deployment_output_labels;
   const deploymentOutputLabels = Object.values(groupedLabels).flat();
   const contractDeploymentLabels = [
     ...groupedLabels.core,
@@ -79,8 +167,7 @@ async function main() {
   await writeFile(path.join(outputRoot, "protocol.ts"), code, "utf8");
 
   const aliasLines = [];
-  for (const abiFile of abiFiles) {
-    const contractName = abiFile.replace(/\.abi\.json$/, "");
+  for (const contractName of Object.keys(abis).sort()) {
     const exportName = `${toIdentifier(contractName)}Abi`;
     aliasLines.push(`export const ${exportName} = abis.${contractName};`);
   }

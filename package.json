@@ -74,6 +74,7 @@
     "smoke:beta": "node ./scripts/beta-rpc-smoke.mjs",
     "smoke:node": "node ./test/smoke-import.mjs",
     "release:check": "bun run test && bun run typecheck && bun run build && node ./scripts/verify-release.mjs",
+    "release:pack": "mkdir -p .artifacts/releases && npm pack --pack-destination ./.artifacts/releases",
     "prepack": "bun run build && node ./scripts/verify-release.mjs"
   },
   "dependencies": {

@@ -85,7 +85,7 @@ That command verifies:
 After that, create a tarball locally with:
 
 ```bash
-npm pack
+bun run release:pack
 ```
 
 The full maintainer release guide is in [`docs/releasing.md`](./releasing.md).

@@ -37,10 +37,10 @@ If the npm registry already has a conflicting prerelease version, bump to the ne
 5. Build and inspect the publish tarball:
 
    ```bash
-   npm pack
+   bun run release:pack
    ```
 
-6. Review the tarball contents and confirm the checked-in `testnet-beta` profile matches the deployment snapshot you want to ship.
+6. Review the tarball in `.artifacts/releases/` and confirm the checked-in `testnet-beta` profile matches the deployment snapshot you want to ship.
 
 ## Canonical publish flow
 

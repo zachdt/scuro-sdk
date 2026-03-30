@@ -275,11 +275,11 @@ Useful preflight commands:
 
 ```bash
 bun run release:check
-npm pack
+bun run release:pack
 ```
 
 `bun run release:check` runs tests, typechecking, a fresh build, and a local release verification pass that confirms the exported files exist.
-`npm pack` lets you inspect the exact tarball before publishing.
+`bun run release:pack` writes the tarball to `.artifacts/releases/` so release artifacts stay out of the repo root.
 
 GitHub Actions workflows are included for:
 

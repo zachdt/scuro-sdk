@@ -35,7 +35,49 @@ export const ANVIL_LOCAL_PROFILE: DeploymentProfile = {
   }
 };
 
+export const TESTNET_BETA_PROFILE: DeploymentProfile = {
+  key: "testnet-beta",
+  name: "Hosted Testnet Beta",
+  chainId: 31337,
+  rpcUrl: "https://d1eu0nzcw8l9ul.cloudfront.net",
+  labels: {
+    ScuroToken: "0x70804a7A45bB7A5f25b9486f484489D531DB48B2",
+    ScuroStakingToken: "0x1EeCbC9772A0De56653FaE657D8A279792F083d7",
+    TimelockController: "0xdaA61f5dAf9223a866E2341eF277e173f570591A",
+    ScuroGovernor: "0xaCe2544542E610Fa90265F666C503F465c100Dda",
+    GameCatalog: "0x9e4F5782c1aa64a81D8cFE38Ce8Af4DccE7043CF",
+    GameDeploymentFactory: "0x87596323899DcbecBe0E942Ca5e7b215d4626c71",
+    DeveloperExpressionRegistry: "0x4349F999eB9179Bd24EeA1Aa9B7b482B44766B1F",
+    DeveloperRewards: "0x136538C8983323429Bdab3d6C6cD914f272e0233",
+    ProtocolSettlement: "0x93DE6Cc0D7f4A4A773F11850397E0DfD4713c6e6",
+    NumberPickerEngine: "0x8715B9B821d157080a4d4bB80AcA13f1c207b176",
+    NumberPickerAdapter: "0x5c070b258dFF03B5C0d1ecEDf75edbc6cf4A4730",
+    NumberPickerModuleId: "1",
+    TournamentController: "0x5B31485e631B8bb417ed7E0dA76700eED65112ff",
+    TournamentPokerEngine: "0x2a4792F5E5d79F1215a8355217A5123015FF0b29",
+    TournamentPokerVerifierBundle: "0x0fA08f1dd7C10F104057ecb7af8b446b551cc5f5",
+    TournamentPokerModuleId: "2",
+    PvPController: "0x50925Db2eEAa415ff242C063D4276617B261C76A",
+    PvPPokerEngine: "0x703D5a5134afCEb802c348716BCCC96E68d2D5D9",
+    PvPPokerVerifierBundle: "0xE7D223C8e2918592AB270B9423A96cF8349E02bf",
+    PvPPokerModuleId: "3",
+    BlackjackVerifierBundle: "0x9cd8dF334535483e9D9760FE00c32b9aB868f72d",
+    SingleDeckBlackjackEngine: "0x0F61a9ad43824aD8fe53DdA65e5EdE1eF9be5C2F",
+    BlackjackController: "0xd7427b2617DB84240b3eC79760361076A92ed829",
+    BlackjackModuleId: "4",
+    Admin: "0x6d25B305a3a152758AEfe8b99A389174C1fb9065",
+    Player1: "0x4567f033D344454bBdA7A1EFE5E6b9B4cfF14cf7",
+    Player2: "0xA16cb12623345ba0C736A3E6816F857680Bcc235",
+    SoloDeveloper: "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    PokerDeveloper: "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+    NumberPickerExpressionTokenId: "1",
+    PokerExpressionTokenId: "3",
+    BlackjackExpressionTokenId: "2"
+  }
+};
+
 registry.set(ANVIL_LOCAL_PROFILE.key, ANVIL_LOCAL_PROFILE);
+registry.set(TESTNET_BETA_PROFILE.key, TESTNET_BETA_PROFILE);
 
 export function defineDeploymentProfile(profile: DeploymentProfile): DeploymentProfile {
   registry.set(profile.key, profile);
@@ -131,4 +173,3 @@ export function requireModuleId(deployment: NormalizedDeployment, label: ModuleI
 export function requireExpressionId(deployment: NormalizedDeployment, label: ExpressionLabel) {
   return requireValue(deployment.expressions[label], label);
 }
-

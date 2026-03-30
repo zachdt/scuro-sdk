@@ -10,7 +10,7 @@ import { deploymentOutputLabelGroups } from "../generated/protocol";
 export type ActorLabel = (typeof deploymentOutputLabelGroups.actors)[number];
 export type ModuleIdLabel = (typeof deploymentOutputLabelGroups.module_ids)[number];
 export type ExpressionLabel = (typeof deploymentOutputLabelGroups.expressions)[number];
-export type BuiltinProfileKey = "anvil-local";
+export type BuiltinProfileKey = "anvil-local" | "testnet-beta";
 
 export interface DeploymentProfile {
   key: string;

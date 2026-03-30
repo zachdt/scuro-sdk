@@ -8,6 +8,11 @@ if (typeof sdk.getProtocolManifest !== "function") {
   throw new Error("manifest export missing");
 }
 
+const hostedBeta = sdk.getDeploymentProfile("testnet-beta");
+if (!hostedBeta || hostedBeta.rpcUrl !== "https://d1eu0nzcw8l9ul.cloudfront.net") {
+  throw new Error("testnet-beta profile missing");
+}
+
 const client = sdk.createScuroClient({
   publicClient: {
     readContract: async () => {

@@ -1,4 +1,4 @@
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import {
@@ -57,6 +57,37 @@ function mergeUnique(base, extras) {
 
 async function main() {
   await mkdir(outputRoot, { recursive: true });
+
+  try {
+    await access(docsGeneratedRoot);
+  } catch {
+    const existingOutputs = [
+      path.join(outputRoot, "protocol.ts"),
+      path.join(outputRoot, "abis.ts"),
+      path.join(outputRoot, "index.ts")
+    ];
+    const existingFiles = await Promise.all(
+      existingOutputs.map(async (file) => {
+        try {
+          await access(file);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+    );
+
+    if (existingFiles.every(Boolean)) {
+      console.warn(
+        `Skipping protocol regeneration because ${docsGeneratedRoot} is unavailable; using checked-in generated files.`
+      );
+      return;
+    }
+
+    throw new Error(
+      `Unable to find generated Scuro docs at ${docsGeneratedRoot}. Set SCURO_PROTOCOL_ROOT or check in src/generated first.`
+    );
+  }
 
   const baseProtocolManifest = await readJson(path.join(docsGeneratedRoot, "protocol-manifest.json"));
   const baseEnumLabels = await readJson(path.join(docsGeneratedRoot, "enum-labels.json"));

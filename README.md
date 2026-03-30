@@ -29,7 +29,7 @@ What is included:
 What is not included yet:
 
 - bundled proof generation or witness tooling
-- real non-local deployment profiles
+- automatic fetching of AWS beta release manifests or actors records
 - full live integration tests against a running local Scuro deployment
 
 ## Package layout
@@ -80,6 +80,11 @@ const manifest = scuro.manifest.getProtocolManifest();
 const approveTx = scuro.contracts.encode.approveSettlement(1000n);
 ```
 
+Built-in deployment profiles currently include:
+
+- `anvil-local` for local Foundry/Anvil development
+- `testnet-beta` for the hosted private AWS beta pinned to the March 30, 2026 release handoff
+
 ## Core concepts
 
 ### `manifest`
@@ -96,10 +101,12 @@ const settlementAbi = getAbi("ProtocolSettlement");
 
 ### `registry`
 
-Use registry helpers to normalize local deploy-script output or your own chain-specific deployment records.
+Use registry helpers to work with built-in deployment profiles or normalize your own chain-specific deployment records.
 
 ```ts
-import { normalizeDeploymentLabels } from "@scuro/sdk/registry";
+import { getDeploymentProfile, normalizeDeploymentLabels } from "@scuro/sdk/registry";
+
+const hostedBeta = getDeploymentProfile("testnet-beta");
 
 const deployment = normalizeDeploymentLabels({
   ScuroToken: "0x1000000000000000000000000000000000000001",
@@ -108,6 +115,8 @@ const deployment = normalizeDeploymentLabels({
   NumberPickerExpressionTokenId: "1"
 });
 ```
+
+The built-in `testnet-beta` profile is a checked-in snapshot of the March 30, 2026 private AWS beta release record. The canonical source of truth remains the protocol release artifacts, and SDK updates should only change this profile intentionally when a new deployment is promoted.
 
 ### `contracts`
 
@@ -254,8 +263,14 @@ npm pack
 
 `bun run release:check` runs tests, typechecking, a fresh build, and a local release verification pass that confirms the exported files exist.
 
+GitHub Actions workflows are included for:
+
+- CI on pull requests and pushes to `main`
+- npm publish on GitHub Release publication
+- optional beta testnet RPC smoke checks when `BETA_TESTNET_RPC_URL` is configured
+
 ## Notes and caveats
 
-- The built-in registry only includes a seeded local Anvil profile right now.
+- The built-in registry currently ships `anvil-local` and the pinned `testnet-beta` hosted profile.
 - The coordinator layer is designed for server-side orchestration, not browser automation.
 - Public helper types are intentionally lightweight in this revision to keep declaration output stable while the API is still settling.

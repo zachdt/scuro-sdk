@@ -4,6 +4,7 @@ import { createFlowHelpers } from "./flows";
 import { getAbi, getContractMetadata, getEventMetadata, getProtocolManifest, listContractNames } from "./manifest";
 import {
   ANVIL_LOCAL_PROFILE,
+  TESTNET_BETA_PROFILE,
   defineDeploymentProfile,
   getDeploymentProfile,
   listDeploymentProfiles,
@@ -29,6 +30,7 @@ export function createScuroClient(options: CreateScuroClientOptions): ScuroClien
     },
     registry: {
       anvil: ANVIL_LOCAL_PROFILE,
+      testnetBeta: TESTNET_BETA_PROFILE,
       defineDeploymentProfile,
       getDeploymentProfile,
       listDeploymentProfiles,

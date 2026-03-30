@@ -112,6 +112,16 @@ For npm trusted publishing:
 2. Add this repository and `.github/workflows/publish.yml` as a trusted publisher in npm package settings.
 3. Publish from a GitHub-hosted runner.
 
+GitHub repository settings needed for the publish workflow itself:
+
+- Required repository secrets: none
+- Required repository variables: none
+- Required environment secrets: none
+- Required environment variables: none
+- Optional repository variable: `ENABLE_BETA_RPC_SMOKE=true` to run the hosted beta smoke step before publish
+
+The publish workflow uses GitHub OIDC, so you do not need to store an `NPM_TOKEN` in GitHub for normal releases.
+
 ### Optional beta testnet configuration
 
 If you want the workflows to ping the hosted beta RPC before release:

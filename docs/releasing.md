@@ -42,7 +42,18 @@ If the npm registry already has a conflicting prerelease version, bump to the ne
 
 6. Review the tarball in `.artifacts/releases/` and confirm the checked-in `testnet-beta` profile matches the deployment snapshot you want to ship.
 
-For GitHub Actions, the optional hosted beta smoke is controlled only by the repository variable `ENABLE_BETA_RPC_SMOKE=true`. The workflow does not need separate RPC URL or chain ID configuration.
+## GitHub settings required to release
+
+For the GitHub Actions release path:
+
+- Required repository secrets: none
+- Required repository variables: none
+- Required environment secrets: none
+- Required environment variables: none
+- Optional repository variable: `ENABLE_BETA_RPC_SMOKE=true` if you want the hosted beta smoke step to run before publish
+
+The publish workflow uses npm trusted publishing via GitHub OIDC, so the normal GitHub Release flow does not need an `NPM_TOKEN`.
+The external prerequisite is on npm: this repository and `.github/workflows/publish.yml` must be registered as a trusted publisher for `@scuro/sdk`.
 
 ## Canonical publish flow
 

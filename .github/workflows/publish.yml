@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -70,18 +70,34 @@ jobs:
           fi
 
           package_version=$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version")
+          package_name=$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).name")
+          tag_name="v$package_version"
 
           {
             echo "NPM_TAG=$npm_tag"
             echo "RELEASE_CHANNEL=$release_channel"
             echo "PACKAGE_VERSION=$package_version"
+            echo "PACKAGE_NAME=$package_name"
+            echo "TAG_NAME=$tag_name"
           } >> "$GITHUB_ENV"
 
       - name: Print publish metadata
         run: |
           echo "release_channel=$RELEASE_CHANNEL"
+          echo "package_name=$PACKAGE_NAME"
           echo "package_version=$PACKAGE_VERSION"
+          echo "tag_name=$TAG_NAME"
           echo "npm_tag=$NPM_TAG"
+
+      - name: Check whether version already exists on npm
+        run: |
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version >/dev/null 2>&1; then
+            echo "VERSION_ALREADY_PUBLISHED=true" >> "$GITHUB_ENV"
+            echo "npm_version_status=already_published"
+          else
+            echo "VERSION_ALREADY_PUBLISHED=false" >> "$GITHUB_ENV"
+            echo "npm_version_status=not_found"
+          fi
 
       - name: Verify release
         run: bun run release:check
@@ -91,9 +107,34 @@ jobs:
         run: bun run smoke:beta
 
       - name: Publish public package with provenance
-        if: ${{ github.event_name != 'workflow_dispatch' && !github.event.repository.private }}
+        if: ${{ github.event_name != 'workflow_dispatch' && !github.event.repository.private && env.VERSION_ALREADY_PUBLISHED != 'true' }}
         run: npm publish --access public --tag "$NPM_TAG" --provenance
 
       - name: Publish package without provenance
-        if: ${{ github.event_name == 'workflow_dispatch' || github.event.repository.private }}
+        if: ${{ (github.event_name == 'workflow_dispatch' || github.event.repository.private) && env.VERSION_ALREADY_PUBLISHED != 'true' }}
         run: npm publish --access public --tag "$NPM_TAG"
+
+      - name: Skip duplicate npm publish
+        if: ${{ env.VERSION_ALREADY_PUBLISHED == 'true' }}
+        run: echo "$PACKAGE_NAME@$PACKAGE_VERSION is already published on npm; skipping publish step."
+
+      - name: Create matching GitHub Release for manual runs
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "GitHub release $TAG_NAME already exists; skipping creation."
+            exit 0
+          fi
+
+          prerelease_flag=""
+          if [ "$NPM_TAG" = "beta" ]; then
+            prerelease_flag="--prerelease"
+          fi
+
+          gh release create "$TAG_NAME" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG_NAME" \
+            --notes "Automated release for $PACKAGE_NAME@$PACKAGE_VERSION published with npm tag $NPM_TAG." \
+            $prerelease_flag

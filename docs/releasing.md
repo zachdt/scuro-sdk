@@ -71,7 +71,7 @@ The external prerequisite is on npm: this repository and `.github/workflows/publ
 
 ## Manual GitHub Actions fallback
 
-If you need to publish without creating a GitHub Release, use the `Publish` workflow's `workflow_dispatch` trigger.
+If you need to publish without creating a GitHub Release first, use the `Publish` workflow's `workflow_dispatch` trigger.
 
 1. Open the `Publish` workflow in GitHub Actions.
 2. Run the workflow manually.
@@ -79,8 +79,12 @@ If you need to publish without creating a GitHub Release, use the `Publish` work
    - `beta` for prerelease distribution
    - `latest` for stable distribution
 4. Review the printed publish metadata in the workflow logs before the publish step executes.
+5. The workflow will create a matching Git tag and GitHub Release after the npm publish completes:
+   - tag name: `v<package-version>`
+   - release type: prerelease when npm tag is `beta`, normal release when npm tag is `latest`
 
 `workflow_dispatch` requires an explicit tag so a manual run cannot silently publish to `latest`.
+If the npm version is already published, the workflow will skip the duplicate publish and still create the matching GitHub Release if it does not exist yet.
 
 ## Local emergency fallback
 

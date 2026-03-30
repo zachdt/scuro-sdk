@@ -96,7 +96,7 @@ This repo includes:
 
 - `.github/workflows/ci.yml`
   - runs package verification on pull requests and pushes to `main`
-  - optionally runs a beta RPC smoke check if `BETA_TESTNET_RPC_URL` is configured
+  - optionally runs a beta RPC smoke check if `ENABLE_BETA_RPC_SMOKE=true`
 - `.github/workflows/publish.yml`
   - publishes on GitHub Release publication
   - sends GitHub prereleases to npm `beta`
@@ -114,13 +114,13 @@ For npm trusted publishing:
 
 ### Optional beta testnet configuration
 
-If you want the workflows to ping the live beta RPC before release:
+If you want the workflows to ping the hosted beta RPC before release:
 
-- add the repository secret `BETA_TESTNET_RPC_URL`
-- optionally add the repository variable `BETA_TESTNET_EXPECTED_CHAIN_ID`
+- add the repository variable `ENABLE_BETA_RPC_SMOKE` with value `true`
 
 The beta smoke job is intentionally read-only and is not required for package publication.
-The SDK now also ships a checked-in `testnet-beta` deployment profile pinned to the March 30, 2026 private AWS beta release handoff. The smoke check is still useful as a liveness check against that public RPC, but it does not fetch or mutate deployment metadata at runtime.
+`bun run smoke:beta` now targets the checked-in `testnet-beta` deployment profile directly, so GitHub no longer needs separate RPC URL or chain ID settings for that check.
+If the hosted beta endpoint changes, update the checked-in `testnet-beta` profile instead of reconfiguring workflow variables.
 
 ## Testing strategy
 

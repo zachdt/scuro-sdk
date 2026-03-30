@@ -87,11 +87,8 @@ jobs:
         run: bun run release:check
 
       - name: Optional beta RPC smoke
-        if: ${{ secrets.BETA_TESTNET_RPC_URL != '' }}
+        if: ${{ vars.ENABLE_BETA_RPC_SMOKE == 'true' }}
         run: bun run smoke:beta
-        env:
-          BETA_TESTNET_RPC_URL: ${{ secrets.BETA_TESTNET_RPC_URL }}
-          BETA_TESTNET_EXPECTED_CHAIN_ID: ${{ vars.BETA_TESTNET_EXPECTED_CHAIN_ID }}
 
       - name: Publish public package with provenance
         if: ${{ github.event_name != 'workflow_dispatch' && !github.event.repository.private }}

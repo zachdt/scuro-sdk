@@ -28,7 +28,7 @@ If the npm registry already has a conflicting prerelease version, bump to the ne
    bun run release:check
    ```
 
-4. Optionally run the hosted beta smoke test if you have the beta RPC configured locally:
+4. Optionally run the hosted beta smoke test against the checked-in `testnet-beta` profile:
 
    ```bash
    bun run smoke:beta
@@ -41,6 +41,8 @@ If the npm registry already has a conflicting prerelease version, bump to the ne
    ```
 
 6. Review the tarball in `.artifacts/releases/` and confirm the checked-in `testnet-beta` profile matches the deployment snapshot you want to ship.
+
+For GitHub Actions, the optional hosted beta smoke is controlled only by the repository variable `ENABLE_BETA_RPC_SMOKE=true`. The workflow does not need separate RPC URL or chain ID configuration.
 
 ## Canonical publish flow
 

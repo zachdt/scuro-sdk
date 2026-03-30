@@ -71,7 +71,7 @@
     "build": "bun run generate-protocol && rm -rf dist && bun build ./src/index.ts ./src/manifest.ts ./src/registry.ts ./src/contracts.ts ./src/flows.ts ./src/coordinator.ts ./src/types.ts --outdir ./dist --target node --format esm && tsc -p tsconfig.build.json",
     "typecheck": "bun run generate-protocol && tsc -p tsconfig.json --noEmit",
     "test": "bun run generate-protocol && bun test",
-    "smoke:beta": "node ./scripts/beta-rpc-smoke.mjs",
+    "smoke:beta": "bun ./scripts/beta-rpc-smoke.ts",
     "smoke:node": "node ./test/smoke-import.mjs",
     "release:check": "bun run test && bun run typecheck && bun run build && node ./scripts/verify-release.mjs",
     "release:pack": "mkdir -p .artifacts/releases && npm pack --pack-destination ./.artifacts/releases",

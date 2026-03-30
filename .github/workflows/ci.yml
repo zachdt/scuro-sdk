@@ -40,7 +40,7 @@ jobs:
 
   beta-rpc-smoke:
     name: Optional Beta RPC Smoke
-    if: ${{ secrets.BETA_TESTNET_RPC_URL != '' }}
+    if: ${{ vars.ENABLE_BETA_RPC_SMOKE == 'true' }}
     runs-on: ubuntu-latest
     needs: package-check
 
@@ -63,7 +63,3 @@ jobs:
 
       - name: Run beta RPC smoke
         run: bun run smoke:beta
-        env:
-          BETA_TESTNET_RPC_URL: ${{ secrets.BETA_TESTNET_RPC_URL }}
-          BETA_TESTNET_EXPECTED_CHAIN_ID: ${{ vars.BETA_TESTNET_EXPECTED_CHAIN_ID }}
-

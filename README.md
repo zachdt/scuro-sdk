@@ -285,7 +285,7 @@ GitHub Actions workflows are included for:
 
 - CI on pull requests and pushes to `main`
 - npm publish on GitHub Release publication, with prereleases publishing to the npm `beta` dist-tag and stable releases publishing to `latest`
-- optional beta testnet RPC smoke checks when `BETA_TESTNET_RPC_URL` is configured
+- optional beta testnet RPC smoke checks when `ENABLE_BETA_RPC_SMOKE=true`
 
 ## Notes and caveats
 

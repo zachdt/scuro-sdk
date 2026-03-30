@@ -88,6 +88,8 @@ After that, create a tarball locally with:
 npm pack
 ```
 
+The full maintainer release guide is in [`docs/releasing.md`](./releasing.md).
+
 ## GitHub Actions
 
 This repo includes:
@@ -97,8 +99,10 @@ This repo includes:
   - optionally runs a beta RPC smoke check if `BETA_TESTNET_RPC_URL` is configured
 - `.github/workflows/publish.yml`
   - publishes on GitHub Release publication
+  - sends GitHub prereleases to npm `beta`
+  - sends stable GitHub releases to npm `latest`
   - uses npm trusted publishing via GitHub OIDC
-  - can also be run manually with `workflow_dispatch`
+  - can also be run manually with `workflow_dispatch`, but requires an explicit npm dist-tag
 
 ### Required GitHub configuration
 

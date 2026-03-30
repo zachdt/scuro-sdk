@@ -46,6 +46,20 @@ The package exports these entrypoints:
 
 The root entrypoint re-exports the main client constructor and the support modules.
 
+## Install
+
+Use the prerelease channel while the SDK is aligned to the hosted beta network snapshot:
+
+```bash
+npm install @scuro/sdk@beta
+```
+
+Use the stable channel only after a version has been intentionally promoted:
+
+```bash
+npm install @scuro/sdk
+```
+
 ## Quick start
 
 ```ts
@@ -84,6 +98,8 @@ Built-in deployment profiles currently include:
 
 - `anvil-local` for local Foundry/Anvil development
 - `testnet-beta` for the hosted private AWS beta pinned to the March 30, 2026 release handoff
+
+Beta package releases should only move this checked-in `testnet-beta` snapshot intentionally when a new hosted deployment is promoted.
 
 ## Core concepts
 
@@ -249,12 +265,13 @@ bun run release:check
 ```
 
 More detail is in [docs/development.md](./docs/development.md).
+The maintainer release playbook lives in [docs/releasing.md](./docs/releasing.md).
 
 ## Release preparation
 
 The package is set up to publish from built `dist/` output only.
 
-Useful commands:
+Useful preflight commands:
 
 ```bash
 bun run release:check
@@ -262,11 +279,12 @@ npm pack
 ```
 
 `bun run release:check` runs tests, typechecking, a fresh build, and a local release verification pass that confirms the exported files exist.
+`npm pack` lets you inspect the exact tarball before publishing.
 
 GitHub Actions workflows are included for:
 
 - CI on pull requests and pushes to `main`
-- npm publish on GitHub Release publication
+- npm publish on GitHub Release publication, with prereleases publishing to the npm `beta` dist-tag and stable releases publishing to `latest`
 - optional beta testnet RPC smoke checks when `BETA_TESTNET_RPC_URL` is configured
 
 ## Notes and caveats

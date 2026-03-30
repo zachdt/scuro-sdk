@@ -14,7 +14,7 @@ The SDK supports standard Node.js and Bun server runtimes. It ships ESM output a
 
 ## Status
 
-This is an early v1 SDK with a working package surface, generated metadata pipeline, unit tests, and publishable build output.
+This is an early v1 SDK with a working package surface, generated metadata pipeline, unit tests, hosted-beta integration coverage, and publishable build output.
 
 Included today:
 
@@ -25,12 +25,13 @@ Included today:
 - runtime helpers for NumberPicker, Slot Machine, Super Baccarat, Chemin de Fer, poker, and blackjack
 - slot preset admin helpers and GameEngineRegistry read/write helpers
 - poker and blackjack coordinator executors with injected proof providers
+- hosted `testnet-beta` integration tests for canonical release-artifact checks, live reads, and additive signer-backed smoke coverage
 
 Not included yet:
 
 - bundled proof generation or witness tooling
 - automatic fetching of hosted beta release manifests or actor records
-- full live integration tests against a running local Scuro deployment
+- sibling local-deployment integration coverage against the Scuro protocol repo's deployment scripts
 
 ## Install
 

@@ -28,32 +28,47 @@ If the npm registry already has a conflicting prerelease version, bump to the ne
    bun run release:check
    ```
 
-4. Optionally run the hosted beta smoke test against the checked-in `testnet-beta` profile:
+4. Run the hosted beta integration suite before beta publishes:
+
+   ```bash
+   bun run test:int:beta
+   ```
+
+   The suite uses the AWS CLI plus:
+
+   - `SCURO_BETA_AWS_REGION` defaulting to `us-east-1`
+   - `SCURO_BETA_RUNTIME_ENV_PARAMETER` defaulting to `/scuro/beta/runtime-env`
+
+5. Optionally run the fast hosted beta RPC smoke test against the checked-in `testnet-beta` profile:
 
    ```bash
    bun run smoke:beta
    ```
 
-5. Build and inspect the publish tarball:
+6. Build and inspect the publish tarball:
 
    ```bash
    bun run release:pack
    ```
 
-6. Review the tarball in `.artifacts/releases/` and confirm the checked-in `testnet-beta` profile matches the deployment snapshot you want to ship.
+7. Review the tarball in `.artifacts/releases/` and confirm the checked-in `testnet-beta` profile matches the deployment snapshot you want to ship.
 
 ## GitHub settings required to release
 
 For the GitHub Actions release path:
 
 - Required repository secrets: none
-- Required repository variables: none
+- Required repository variable for beta release gating: `SCURO_BETA_AWS_ROLE_ARN`
 - Required environment secrets: none
 - Required environment variables: none
 - Optional repository variable: `ENABLE_BETA_RPC_SMOKE=true` if you want the hosted beta smoke step to run before publish
+- Optional repository variable: `SCURO_BETA_AWS_REGION` defaulting to `us-east-1`
+- Optional repository variable: `SCURO_BETA_RUNTIME_ENV_PARAMETER` defaulting to `/scuro/beta/runtime-env`
+- Optional repository variable: `ENABLE_BETA_LIVE_INTEGRATION=true` if you also want the hosted-beta integration suite on normal CI
 
 The publish workflow uses npm trusted publishing via GitHub OIDC, so the normal GitHub Release flow does not need an `NPM_TOKEN`.
 The external prerequisite is on npm: this repository and `.github/workflows/publish.yml` must be registered as a trusted publisher for `@scuro/sdk`.
+For beta publishes, the workflow now also assumes `SCURO_BETA_AWS_ROLE_ARN` through GitHub OIDC so it can read the canonical release artifacts from S3 and load runtime signer keys from SSM.
 
 ## Canonical publish flow
 
@@ -64,10 +79,11 @@ The external prerequisite is on npm: this repository and `.github/workflows/publ
    - Publish a normal release to publish to npm `latest`.
 4. Let GitHub Actions run `.github/workflows/publish.yml`.
 5. Confirm the workflow logs show the expected package version and npm dist-tag before the publish step runs.
-6. Verify the package on npm:
+6. For beta publishes, confirm the hosted-beta integration suite passes before the publish step executes.
+7. Verify the package on npm:
    - beta install path: `npm install @scuro/sdk@beta`
    - stable install path: `npm install @scuro/sdk`
-7. Announce the release with the exact version, npm tag, and whether the `testnet-beta` snapshot changed.
+8. Announce the release with the exact version, npm tag, and whether the `testnet-beta` snapshot changed.
 
 ## Manual GitHub Actions fallback
 

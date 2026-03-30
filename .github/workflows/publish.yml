@@ -99,8 +99,22 @@ jobs:
             echo "npm_version_status=not_found"
           fi
 
+      - name: Configure AWS credentials for beta integration
+        if: ${{ env.NPM_TAG == 'beta' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.SCURO_BETA_AWS_ROLE_ARN }}
+          aws-region: ${{ vars.SCURO_BETA_AWS_REGION || 'us-east-1' }}
+
       - name: Verify release
         run: bun run release:check
+
+      - name: Run hosted beta integration suite
+        if: ${{ env.NPM_TAG == 'beta' }}
+        env:
+          SCURO_BETA_AWS_REGION: ${{ vars.SCURO_BETA_AWS_REGION || 'us-east-1' }}
+          SCURO_BETA_RUNTIME_ENV_PARAMETER: ${{ vars.SCURO_BETA_RUNTIME_ENV_PARAMETER || '/scuro/beta/runtime-env' }}
+        run: bun run test:int:beta
 
       - name: Optional beta RPC smoke
         if: ${{ vars.ENABLE_BETA_RPC_SMOKE == 'true' }}

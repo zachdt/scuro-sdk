@@ -298,48 +298,58 @@ function createHostedBetaWalletContext(
 }
 
 export function getHostedBetaReadContext() {
-  hostedBetaReadContextPromise ??= Promise.resolve().then(() => {
-    if (!TESTNET_BETA_PROFILE.rpcUrl) {
-      throw new Error("testnet-beta profile is missing an rpcUrl");
-    }
+  hostedBetaReadContextPromise ??= Promise.resolve()
+    .then(() => {
+      if (!TESTNET_BETA_PROFILE.rpcUrl) {
+        throw new Error("testnet-beta profile is missing an rpcUrl");
+      }
 
-    const publicClient = createPublicClient({
-      chain: foundry,
-      transport: http(TESTNET_BETA_PROFILE.rpcUrl)
-    });
-    const scuro = createScuroClient({
-      publicClient,
-      deployment: TESTNET_BETA_PROFILE
-    });
-    const releaseRecord = loadHostedBetaReleaseRecord();
-    const { manifest, actorsFile } = loadHostedBetaReleaseArtifacts(releaseRecord);
+      const publicClient = createPublicClient({
+        chain: foundry,
+        transport: http(TESTNET_BETA_PROFILE.rpcUrl)
+      });
+      const scuro = createScuroClient({
+        publicClient,
+        deployment: TESTNET_BETA_PROFILE
+      });
+      const releaseRecord = loadHostedBetaReleaseRecord();
+      const { manifest, actorsFile } = loadHostedBetaReleaseArtifacts(releaseRecord);
 
-    return {
-      profile: TESTNET_BETA_PROFILE,
-      publicClient,
-      scuro,
-      releaseRecord,
-      manifest,
-      actorsFile
-    };
-  });
+      return {
+        profile: TESTNET_BETA_PROFILE,
+        publicClient,
+        scuro,
+        releaseRecord,
+        manifest,
+        actorsFile
+      };
+    })
+    .catch((error) => {
+      hostedBetaReadContextPromise = undefined;
+      throw error;
+    });
 
   return hostedBetaReadContextPromise;
 }
 
 export function getHostedBetaSignerContext() {
-  hostedBetaSignerContextPromise ??= getHostedBetaReadContext().then((readContext) => {
-    const secrets = loadHostedBetaSignerSecrets();
+  hostedBetaSignerContextPromise ??= getHostedBetaReadContext()
+    .then((readContext) => {
+      const secrets = loadHostedBetaSignerSecrets();
 
-    return {
-      ...readContext,
-      signers: {
-        Admin: createHostedBetaWalletContext(readContext.publicClient, secrets.Admin),
-        Player1: createHostedBetaWalletContext(readContext.publicClient, secrets.Player1),
-        Player2: createHostedBetaWalletContext(readContext.publicClient, secrets.Player2)
-      }
-    };
-  });
+      return {
+        ...readContext,
+        signers: {
+          Admin: createHostedBetaWalletContext(readContext.publicClient, secrets.Admin),
+          Player1: createHostedBetaWalletContext(readContext.publicClient, secrets.Player1),
+          Player2: createHostedBetaWalletContext(readContext.publicClient, secrets.Player2)
+        }
+      };
+    })
+    .catch((error) => {
+      hostedBetaSignerContextPromise = undefined;
+      throw error;
+    });
 
   return hostedBetaSignerContextPromise;
 }

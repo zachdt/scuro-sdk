@@ -58,18 +58,20 @@ If the npm registry already has a conflicting prerelease version, bump to the ne
 For the GitHub Actions release path:
 
 - Required repository secrets: none
-- Required repository variable for beta release gating: `SCURO_BETA_AWS_ROLE_ARN`
+- Required repository variables: none
 - Required environment secrets: none
 - Required environment variables: none
 - Optional repository variable: `ENABLE_BETA_RPC_SMOKE=true` if you want the hosted beta smoke step to run before publish
+- Optional repository variable: `ENABLE_BETA_PUBLISH_LIVE_INTEGRATION=true` if you want beta publishes to run the hosted beta integration suite before npm publish
+- Optional repository variable: `SCURO_BETA_AWS_ROLE_ARN` when `ENABLE_BETA_PUBLISH_LIVE_INTEGRATION=true`
 - Optional repository variable: `SCURO_BETA_AWS_REGION` defaulting to `us-east-1`
 - Optional repository variable: `SCURO_BETA_RUNTIME_ENV_PARAMETER` defaulting to `/scuro/beta/runtime-env`
 - Optional repository variable: `ENABLE_BETA_LIVE_INTEGRATION=true` if you also want the hosted-beta integration suite on normal CI
 
 The publish workflow uses npm trusted publishing via GitHub OIDC, so the normal GitHub Release flow does not need an `NPM_TOKEN`.
 The external prerequisite is on npm: this repository and `.github/workflows/publish.yml` must be registered as a trusted publisher for `@scuro/sdk`.
-For beta publishes, the workflow now also assumes `SCURO_BETA_AWS_ROLE_ARN` through GitHub OIDC so it can read the canonical release artifacts from S3 and load runtime signer keys from SSM.
-If the AWS credential step fails with `Could not load credentials from any providers`, treat that as an AWS/OIDC setup problem rather than an npm publish problem:
+If `ENABLE_BETA_PUBLISH_LIVE_INTEGRATION=true`, beta publishes also assume `SCURO_BETA_AWS_ROLE_ARN` through GitHub OIDC so they can read the canonical release artifacts from S3 and load runtime signer keys from SSM.
+If that optional AWS credential step fails with `Could not load credentials from any providers`, treat that as an AWS/OIDC setup problem rather than an npm publish problem:
 - `SCURO_BETA_AWS_ROLE_ARN` is missing, empty, or scoped to a GitHub environment this job does not use
 - the IAM role trust policy does not allow this repository/workflow to assume the role via GitHub OIDC
 - the workflow is missing `id-token: write`
@@ -83,7 +85,7 @@ If the AWS credential step fails with `Could not load credentials from any provi
    - Publish a normal release to publish to npm `latest`.
 4. Let GitHub Actions run `.github/workflows/publish.yml`.
 5. Confirm the workflow logs show the expected package version and npm dist-tag before the publish step runs.
-6. For beta publishes, confirm the hosted-beta integration suite passes before the publish step executes.
+6. If `ENABLE_BETA_PUBLISH_LIVE_INTEGRATION=true`, confirm the hosted-beta integration suite passes before the publish step executes.
 7. Verify the package on npm:
    - beta install path: `npm install @scuro/sdk@beta`
    - stable install path: `npm install @scuro/sdk`

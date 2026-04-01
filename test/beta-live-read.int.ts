@@ -23,7 +23,7 @@ describe("hosted beta read-only integration", () => {
     for (const [actor, address] of Object.entries(context.actorsFile.actors)) {
       expect(context.manifest.actors[actor]).toBe(address);
     }
-  });
+  }, 30_000);
 
   test("resolves live core reads against the hosted beta rpc", async () => {
     const context = await getHostedBetaReadContext();
@@ -107,12 +107,12 @@ describe("hosted beta read-only integration", () => {
         args: [deployment.expressions.BlackjackExpressionTokenId!]
       })
     ).toBe(context.actorsFile.actors.SoloDeveloper!);
-  });
+  }, 30_000);
 
   test("documents the missing engine registry address in the current beta snapshot", async () => {
     const context = await getHostedBetaReadContext();
 
     expect(context.profile.labels.GameEngineRegistry).toBeUndefined();
     expect(context.manifest.contracts.GameEngineRegistry).toBeUndefined();
-  });
+  }, 30_000);
 });

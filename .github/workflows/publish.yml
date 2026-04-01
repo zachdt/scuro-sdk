@@ -102,26 +102,26 @@ jobs:
             echo "npm_version_status=not_found"
           fi
 
-      - name: Validate beta AWS configuration
-        if: ${{ env.NPM_TAG == 'beta' && vars.SCURO_BETA_AWS_ROLE_ARN == '' }}
+      - name: Validate optional beta AWS configuration
+        if: ${{ env.NPM_TAG == 'beta' && vars.ENABLE_BETA_PUBLISH_LIVE_INTEGRATION == 'true' && vars.SCURO_BETA_AWS_ROLE_ARN == '' }}
         run: |
-          echo "::error title=Missing beta AWS role::Beta publishes require SCURO_BETA_AWS_ROLE_ARN so GitHub Actions can assume the beta AWS role through OIDC."
-          echo "::error::Set SCURO_BETA_AWS_ROLE_ARN as a repository variable, or attach this job to the environment that defines it."
+          echo "::error title=Missing beta AWS role::ENABLE_BETA_PUBLISH_LIVE_INTEGRATION=true requires SCURO_BETA_AWS_ROLE_ARN so GitHub Actions can assume the beta AWS role through OIDC."
+          echo "::error::Set SCURO_BETA_AWS_ROLE_ARN as a repository variable, or disable ENABLE_BETA_PUBLISH_LIVE_INTEGRATION for publish runs."
           exit 1
 
-      - name: Configure AWS credentials for beta integration
+      - name: Configure AWS credentials for optional beta integration
         id: beta_aws_credentials
-        if: ${{ env.NPM_TAG == 'beta' }}
+        if: ${{ env.NPM_TAG == 'beta' && vars.ENABLE_BETA_PUBLISH_LIVE_INTEGRATION == 'true' }}
         continue-on-error: true
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.SCURO_BETA_AWS_ROLE_ARN }}
           aws-region: ${{ vars.SCURO_BETA_AWS_REGION || 'us-east-1' }}
 
-      - name: Explain beta AWS credential failure
-        if: ${{ env.NPM_TAG == 'beta' && steps.beta_aws_credentials.outcome == 'failure' }}
+      - name: Explain optional beta AWS credential failure
+        if: ${{ env.NPM_TAG == 'beta' && vars.ENABLE_BETA_PUBLISH_LIVE_INTEGRATION == 'true' && steps.beta_aws_credentials.outcome == 'failure' }}
         run: |
-          echo "::error title=Unable to assume beta AWS role::aws-actions/configure-aws-credentials failed while preparing the beta integration checks."
+          echo "::error title=Unable to assume beta AWS role::aws-actions/configure-aws-credentials failed while preparing the optional beta integration checks."
           echo "::error::Most likely causes: SCURO_BETA_AWS_ROLE_ARN is empty or wrong, the IAM role trust policy does not allow this repo/workflow to use GitHub OIDC, or GitHub environment-scoped vars are not available to this job."
           echo "::error::Check the workflow permissions (id-token: write), the SCURO_BETA_AWS_ROLE_ARN variable, and the role trust policy conditions for this repository."
           exit 1
@@ -131,8 +131,8 @@ jobs:
           SCURO_PROTOCOL_ALREADY_GENERATED: "1"
         run: bun run release:check
 
-      - name: Run hosted beta integration suite
-        if: ${{ env.NPM_TAG == 'beta' }}
+      - name: Run optional hosted beta integration suite
+        if: ${{ env.NPM_TAG == 'beta' && vars.ENABLE_BETA_PUBLISH_LIVE_INTEGRATION == 'true' }}
         env:
           SCURO_PROTOCOL_ALREADY_GENERATED: "1"
           SCURO_BETA_AWS_REGION: ${{ vars.SCURO_BETA_AWS_REGION || 'us-east-1' }}

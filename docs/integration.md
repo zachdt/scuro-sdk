@@ -34,7 +34,7 @@ In practice:
 The SDK ships two built-in profiles:
 
 - `anvil-local`: local Foundry/Anvil development
-- `testnet-beta`: checked-in hosted beta snapshot pinned to the March 30, 2026 release handoff
+- `testnet-beta`: checked-in hosted beta snapshot pinned to the April 1, 2026 iterate-runtime artifact
 
 Use a built-in profile when your service should target one of those environments directly:
 

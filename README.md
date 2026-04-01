@@ -126,7 +126,7 @@ const txHash = await scuro.contracts.write.approveSettlement(1000n);
 Built-in deployment profiles currently include:
 
 - `anvil-local` for local Foundry/Anvil development
-- `testnet-beta` for the hosted private beta pinned to the March 30, 2026 release handoff
+- `testnet-beta` for the hosted private beta pinned to the April 1, 2026 iterate-runtime snapshot
 
 Beta package releases should only move the checked-in `testnet-beta` snapshot intentionally when a new hosted deployment is promoted.
 

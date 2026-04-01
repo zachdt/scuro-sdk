@@ -35,6 +35,7 @@ export const ANVIL_LOCAL_PROFILE: DeploymentProfile = {
   }
 };
 
+// Synced against the April 1, 2026 Iterate Beta Runtime manifest/actors artifact.
 export const TESTNET_BETA_PROFILE: DeploymentProfile = {
   key: "testnet-beta",
   name: "Hosted Testnet Beta",

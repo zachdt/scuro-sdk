@@ -80,16 +80,59 @@ export interface HostedBetaSignerContext extends HostedBetaReadContext {
 let hostedBetaReadContextPromise: Promise<HostedBetaReadContext> | undefined;
 let hostedBetaSignerContextPromise: Promise<HostedBetaSignerContext> | undefined;
 
-function runAws(args: string[]) {
-  return execFileSync("aws", args, {
-    cwd: process.cwd(),
-    encoding: "utf8",
-    env: process.env
-  }).trim();
+const AWS_READ_ATTEMPTS = 3;
+
+function sleepMs(milliseconds: number) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
 }
 
-function readAwsJson<T>(args: string[]) {
-  return JSON.parse(runAws(args)) as T;
+function formatAwsError(args: string[], error: unknown) {
+  if (!(error instanceof Error)) {
+    return `aws ${args.join(" ")} failed with a non-Error value.`;
+  }
+
+  const details = [error.message];
+  const stdout = "stdout" in error ? String(error.stdout ?? "").trim() : "";
+  const stderr = "stderr" in error ? String(error.stderr ?? "").trim() : "";
+
+  if (stderr) {
+    details.push(`stderr:\n${stderr}`);
+  }
+  if (stdout) {
+    details.push(`stdout:\n${stdout}`);
+  }
+
+  return `Command failed: aws ${args.join(" ")}\n${details.join("\n\n")}`;
+}
+
+function runAws(args: string[], { attempts = 1 }: { attempts?: number } = {}) {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return execFileSync("aws", args, {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          AWS_PAGER: ""
+        },
+        stdio: ["ignore", "pipe", "pipe"]
+      }).trim();
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < attempts) {
+        sleepMs(250 * attempt);
+      }
+    }
+  }
+
+  throw new Error(formatAwsError(args, lastError));
+}
+
+function readAwsJson<T>(args: string[], options?: { attempts?: number }) {
+  return JSON.parse(runAws(args, options)) as T;
 }
 
 function parseRequiredHex(name: string, value: string | undefined): Hex {
@@ -168,22 +211,46 @@ function getBetaRuntimeEnvParameter() {
 }
 
 function loadHostedBetaReleaseRecord() {
-  return readAwsJson<BetaReleaseRecord>(["s3", "cp", HOSTED_BETA_RELEASE_RECORD_URI, "-"]);
+  return readAwsJson<BetaReleaseRecord>(
+    [
+      "--region",
+      getBetaAwsRegion(),
+      "s3",
+      "cp",
+      "--only-show-errors",
+      HOSTED_BETA_RELEASE_RECORD_URI,
+      "-"
+    ],
+    { attempts: AWS_READ_ATTEMPTS }
+  );
 }
 
 function loadHostedBetaReleaseArtifacts(releaseRecord: BetaReleaseRecord) {
-  const manifest = readAwsJson<BetaManifest>([
-    "s3",
-    "cp",
-    buildReleaseArtifactS3Uri(releaseRecord, "manifestKey"),
-    "-"
-  ]);
-  const actorsFile = readAwsJson<BetaActorsFile>([
-    "s3",
-    "cp",
-    buildReleaseArtifactS3Uri(releaseRecord, "actorsKey"),
-    "-"
-  ]);
+  const awsRegion = releaseRecord.awsRegion || getBetaAwsRegion();
+  const manifest = readAwsJson<BetaManifest>(
+    [
+      "--region",
+      awsRegion,
+      "s3",
+      "cp",
+      "--only-show-errors",
+      buildReleaseArtifactS3Uri(releaseRecord, "manifestKey"),
+      "-"
+    ],
+    { attempts: AWS_READ_ATTEMPTS }
+  );
+  const actorsFile = readAwsJson<BetaActorsFile>(
+    [
+      "--region",
+      awsRegion,
+      "s3",
+      "cp",
+      "--only-show-errors",
+      buildReleaseArtifactS3Uri(releaseRecord, "actorsKey"),
+      "-"
+    ],
+    { attempts: AWS_READ_ATTEMPTS }
+  );
 
   return {
     manifest,
@@ -204,7 +271,7 @@ function loadHostedBetaSignerSecrets() {
     "Parameter.Value",
     "--output",
     "text"
-  ]);
+  ], { attempts: AWS_READ_ATTEMPTS });
 
   return parseHostedBetaSignerSecrets(runtimeEnv);
 }

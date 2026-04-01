@@ -45,6 +45,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Generate protocol outputs
+        run: bun run generate-protocol
+
       - name: Determine publish metadata
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -124,11 +127,14 @@ jobs:
           exit 1
 
       - name: Verify release
+        env:
+          SCURO_PROTOCOL_ALREADY_GENERATED: "1"
         run: bun run release:check
 
       - name: Run hosted beta integration suite
         if: ${{ env.NPM_TAG == 'beta' }}
         env:
+          SCURO_PROTOCOL_ALREADY_GENERATED: "1"
           SCURO_BETA_AWS_REGION: ${{ vars.SCURO_BETA_AWS_REGION || 'us-east-1' }}
           SCURO_BETA_RUNTIME_ENV_PARAMETER: ${{ vars.SCURO_BETA_RUNTIME_ENV_PARAMETER || '/scuro/beta/runtime-env' }}
         run: bun run test:int:beta

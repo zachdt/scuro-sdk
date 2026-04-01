@@ -56,6 +56,11 @@ function mergeUnique(base, extras) {
 }
 
 async function main() {
+  if (process.env.SCURO_PROTOCOL_ALREADY_GENERATED === "1") {
+    console.log("Skipping protocol regeneration because SCURO_PROTOCOL_ALREADY_GENERATED=1.");
+    return;
+  }
+
   await mkdir(outputRoot, { recursive: true });
 
   try {

@@ -42,6 +42,8 @@ export interface BlackjackInitialDealProof {
   playerCiphertextRef: Hex;
   dealerCiphertextRef: Hex;
   dealerVisibleValue: bigint;
+  playerCards: readonly [number, number, number, number, number, number, number, number];
+  dealerCards: readonly [number, number, number, number];
   handCount: number;
   activeHandIndex: number;
   payout: bigint;
@@ -49,6 +51,9 @@ export interface BlackjackInitialDealProof {
   handValues: readonly [bigint, bigint, bigint, bigint];
   handStatuses: readonly [number, number, number, number];
   allowedActionMasks: readonly [number, number, number, number];
+  handCardCounts: readonly [number, number, number, number];
+  handPayoutKinds: readonly [number, number, number, number];
+  dealerRevealMask: number;
   softMask: bigint;
   proof: Hex;
 }
@@ -61,12 +66,17 @@ export interface BlackjackActionProof {
     playerCiphertextRef: Hex;
     dealerCiphertextRef: Hex;
     dealerVisibleValue: bigint;
+    playerCards: readonly [number, number, number, number, number, number, number, number];
+    dealerCards: readonly [number, number, number, number];
     handCount: number;
     activeHandIndex: number;
     nextPhase: number;
     handValues: readonly [bigint, bigint, bigint, bigint];
     handStatuses: readonly [number, number, number, number];
     allowedActionMasks: readonly [number, number, number, number];
+    handCardCounts: readonly [number, number, number, number];
+    handPayoutKinds: readonly [number, number, number, number];
+    dealerRevealMask: number;
     softMask: bigint;
     proof: Hex;
   };
@@ -79,9 +89,15 @@ export interface BlackjackShowdownProof {
     dealerStateCommitment: Hex;
     payout: bigint;
     dealerFinalValue: bigint;
+    playerCards: readonly [number, number, number, number, number, number, number, number];
+    dealerCards: readonly [number, number, number, number];
     handCount: number;
     activeHandIndex: number;
     handStatuses: readonly [number, number, number, number];
+    handValues: readonly [bigint, bigint, bigint, bigint];
+    handCardCounts: readonly [number, number, number, number];
+    handPayoutKinds: readonly [number, number, number, number];
+    dealerRevealMask: number;
     proof: Hex;
   };
 }

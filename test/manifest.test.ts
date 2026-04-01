@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import type { AbiFunction } from "viem";
 
 import { getAbi, getContractMetadata, getProtocolManifest, listContractNames } from "../src/manifest";
 import { deploymentOutputLabelGroups, enumLabels } from "../src/generated/protocol";
@@ -33,5 +34,21 @@ describe("manifest helpers", () => {
     expect(deploymentOutputLabelGroups.engines).toContain("CheminDeFerEngine");
     expect(enumLabels["BaccaratTypes.BaccaratSide"]["1"]).toBe("Banker");
     expect(enumLabels["BaccaratTypes.BaccaratOutcome"]["0"]).toBe("PlayerWin");
+    expect(enumLabels["SingleDeckBlackjackEngine.HandPayoutKind"]["5"]).toBe("HAND_PAYOUT_SUITED_BLACKJACK_2_TO_1");
+  });
+
+  test("ship blackjack v2 manifest and abi metadata", () => {
+    const manifest = getProtocolManifest();
+    expect(manifest.local_defaults.blackjack.config_hash_label).toBe("single-deck-blackjack-zk-v2");
+
+    const abi = getAbi("SingleDeckBlackjackEngine");
+    const functionNames = abi
+      .filter((item): item is AbiFunction => item.type === "function")
+      .map((item) => item.name);
+
+    expect(functionNames).toContain("CARD_EMPTY");
+    expect(functionNames).toContain("HAND_PAYOUT_SUITED_BLACKJACK_2_TO_1");
+    expect(functionNames).toContain("submitActionProof");
+    expect(functionNames).toContain("submitShowdownProof");
   });
 });

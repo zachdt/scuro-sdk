@@ -249,6 +249,14 @@ Use this when the application wants to gate writes on current state:
 ```ts
 const session = await scuro.flows.blackjack.inspectSession(12n);
 
+const activeHand = session.hands[session.session.activeHandIndex];
+console.log({
+  playerCards: session.playerCards,
+  dealerCards: session.dealerCards,
+  dealerRevealMask: session.dealerRevealMask,
+  payoutKind: activeHand?.payoutKind
+});
+
 if (!session.settlementOutcome.completed) {
   throw new Error("session is not ready to settle");
 }
@@ -257,6 +265,7 @@ const txHash = await scuro.contracts.write.blackjackSettle(12n);
 ```
 
 The `flows` layer is usually the better fit for guarded operations because it already performs common readiness checks and returns a prepared request only when the action is valid.
+For blackjack v2 UIs, treat `hands[i].payoutKind` as the source of truth for blackjack bonus classes and use `dealerRevealMask` to decide which dealer slots are visible.
 
 ## End-to-End Backend Example
 

@@ -44,6 +44,7 @@ export type EnumName =
   | "SingleDeckBlackjackEngine.SessionPhase"
   | "SingleDeckBlackjackEngine.Action"
   | "SingleDeckBlackjackEngine.ActionMask"
+  | "SingleDeckBlackjackEngine.HandPayoutKind"
   | "SingleDraw2To7Engine.MatchState"
   | "SingleDraw2To7Engine.HandPhase";
 
@@ -59,6 +60,13 @@ export type BlackjackSessionPhaseLabel =
   | "Completed";
 export type BlackjackActionLabel = "ACTION_HIT" | "ACTION_STAND" | "ACTION_DOUBLE" | "ACTION_SPLIT";
 export type BlackjackActionMaskLabel = "ALLOW_HIT" | "ALLOW_STAND" | "ALLOW_DOUBLE" | "ALLOW_SPLIT";
+export type BlackjackHandPayoutKindLabel =
+  | "HAND_PAYOUT_NONE"
+  | "HAND_PAYOUT_LOSS"
+  | "HAND_PAYOUT_PUSH"
+  | "HAND_PAYOUT_EVEN_MONEY"
+  | "HAND_PAYOUT_BLACKJACK_3_TO_2"
+  | "HAND_PAYOUT_SUITED_BLACKJACK_2_TO_1";
 export type PokerMatchStateLabel = "Inactive" | "Active" | "Completed";
 export type PokerHandPhaseLabel =
   | "None"
@@ -69,6 +77,27 @@ export type PokerHandPhaseLabel =
   | "PostDrawBetting"
   | "ShowdownProofPending"
   | "HandComplete";
+export type BlackjackCardRank = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+export type BlackjackCardSuit = 0 | 1 | 2 | 3;
+export type BlackjackDealerRevealSlots = readonly [boolean, boolean, boolean, boolean];
+export type BlackjackGroupedPlayerCards = readonly [
+  readonly number[],
+  readonly number[],
+  readonly number[],
+  readonly number[]
+];
+
+export interface DecodedBlackjackCardProxy {
+  raw: number;
+  isEmpty: boolean;
+  rank: BlackjackCardRank | null;
+  suit: BlackjackCardSuit | null;
+}
+
+export interface DecodedBlackjackDealerRevealMask {
+  rawMask: number;
+  slots: BlackjackDealerRevealSlots;
+}
 
 export interface PreparedTransactionRequest {
   to: Address;

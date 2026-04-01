@@ -1,5 +1,12 @@
 export const supplementalContracts = [
   {
+    name: "GameEngineRegistry",
+    category: "core",
+    source: "src/GameEngineRegistry.sol",
+    reference_doc: "docs/reference/game-engine-registry.md",
+    artifact: "out/GameEngineRegistry.sol/GameEngineRegistry.json"
+  },
+  {
     name: "SlotMachineController",
     category: "controller",
     source: "src/controllers/SlotMachineController.sol",

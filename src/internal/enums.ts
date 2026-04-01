@@ -4,6 +4,7 @@ import type {
   BaccaratSideLabel,
   BlackjackActionLabel,
   BlackjackActionMaskLabel,
+  BlackjackHandPayoutKindLabel,
   BlackjackSessionPhaseLabel,
   EnumName,
   GameModeLabel,
@@ -44,6 +45,10 @@ export function decodeBlackjackSessionPhase(value: number | bigint): BlackjackSe
 
 export function decodeBlackjackAction(value: number | bigint): BlackjackActionLabel {
   return lookupEnumLabel("SingleDeckBlackjackEngine.Action", value) as BlackjackActionLabel;
+}
+
+export function decodeBlackjackHandPayoutKind(value: number | bigint): BlackjackHandPayoutKindLabel {
+  return lookupEnumLabel("SingleDeckBlackjackEngine.HandPayoutKind", value) as BlackjackHandPayoutKindLabel;
 }
 
 export function decodePokerMatchState(value: number | bigint): PokerMatchStateLabel {

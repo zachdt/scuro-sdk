@@ -208,6 +208,7 @@ const stakingTxs = scuro.flows.staking.prepareApproveAndStake({
 });
 
 const blackjackActionTx = await scuro.flows.blackjack.prepareAction(7n, "doubleDown");
+const blackjackSession = await scuro.flows.blackjack.inspectSession(7n);
 const slotTx = scuro.flows.slotMachine.prepareSpin({
   stake: 10n,
   presetId: 1n,
@@ -215,6 +216,8 @@ const slotTx = scuro.flows.slotMachine.prepareSpin({
   expressionTokenId: 7n
 });
 ```
+
+Blackjack v2 session inspection now includes flattened `playerCards`, masked `dealerCards`, `dealerRevealMask`, and per-hand `cardCount` / `payoutKind`. Render blackjack bonuses from `payoutKind` and settled `payout` instead of recomputing them client-side.
 
 ### `@scuro/sdk/coordinator`
 

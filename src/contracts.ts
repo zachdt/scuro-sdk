@@ -1025,6 +1025,8 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         playerCiphertextRef: Hex;
         dealerCiphertextRef: Hex;
         dealerVisibleValue: bigint;
+        playerCards: readonly [number, number, number, number, number, number, number, number];
+        dealerCards: readonly [number, number, number, number];
         handCount: number;
         activeHandIndex: number;
         payout: bigint;
@@ -1032,6 +1034,9 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         handValues: readonly [bigint, bigint, bigint, bigint];
         handStatuses: readonly [number, number, number, number];
         allowedActionMasks: readonly [number, number, number, number];
+        handCardCounts: readonly [number, number, number, number];
+        handPayoutKinds: readonly [number, number, number, number];
+        dealerRevealMask: number;
         softMask: bigint;
         proof: Hex;
       }
@@ -1045,6 +1050,8 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.playerCiphertextRef,
         args.dealerCiphertextRef,
         args.dealerVisibleValue,
+        args.playerCards,
+        args.dealerCards,
         args.handCount,
         args.activeHandIndex,
         args.payout,
@@ -1052,6 +1059,9 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.handValues,
         args.handStatuses,
         args.allowedActionMasks,
+        args.handCardCounts,
+        args.handPayoutKinds,
+        args.dealerRevealMask,
         args.softMask,
         args.proof
       ]),
@@ -1063,12 +1073,17 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         playerCiphertextRef: Hex;
         dealerCiphertextRef: Hex;
         dealerVisibleValue: bigint;
+        playerCards: readonly [number, number, number, number, number, number, number, number];
+        dealerCards: readonly [number, number, number, number];
         handCount: number;
         activeHandIndex: number;
         nextPhase: number;
         handValues: readonly [bigint, bigint, bigint, bigint];
         handStatuses: readonly [number, number, number, number];
         allowedActionMasks: readonly [number, number, number, number];
+        handCardCounts: readonly [number, number, number, number];
+        handPayoutKinds: readonly [number, number, number, number];
+        dealerRevealMask: number;
         softMask: bigint;
         proof: Hex;
       }
@@ -1080,12 +1095,17 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.playerCiphertextRef,
         args.dealerCiphertextRef,
         args.dealerVisibleValue,
+        args.playerCards,
+        args.dealerCards,
         args.handCount,
         args.activeHandIndex,
         args.nextPhase,
         args.handValues,
         args.handStatuses,
         args.allowedActionMasks,
+        args.handCardCounts,
+        args.handPayoutKinds,
+        args.dealerRevealMask,
         args.softMask,
         args.proof
       ]),
@@ -1096,9 +1116,15 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         dealerStateCommitment: Hex;
         payout: bigint;
         dealerFinalValue: bigint;
+        playerCards: readonly [number, number, number, number, number, number, number, number];
+        dealerCards: readonly [number, number, number, number];
         handCount: number;
         activeHandIndex: number;
         handStatuses: readonly [number, number, number, number];
+        handValues: readonly [bigint, bigint, bigint, bigint];
+        handCardCounts: readonly [number, number, number, number];
+        handPayoutKinds: readonly [number, number, number, number];
+        dealerRevealMask: number;
         proof: Hex;
       }
     ) =>
@@ -1108,9 +1134,15 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.dealerStateCommitment,
         args.payout,
         args.dealerFinalValue,
+        args.playerCards,
+        args.dealerCards,
         args.handCount,
         args.activeHandIndex,
         args.handStatuses,
+        args.handValues,
+        args.handCardCounts,
+        args.handPayoutKinds,
+        args.dealerRevealMask,
         args.proof
       ]),
     deployNumberPickerModule: (params: Parameters<typeof encodeNumberPickerDeployment>[0]) =>
@@ -1365,6 +1397,8 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.playerCiphertextRef,
         args.dealerCiphertextRef,
         args.dealerVisibleValue,
+        args.playerCards,
+        args.dealerCards,
         args.handCount,
         args.activeHandIndex,
         args.payout,
@@ -1372,6 +1406,9 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.handValues,
         args.handStatuses,
         args.allowedActionMasks,
+        args.handCardCounts,
+        args.handPayoutKinds,
+        args.dealerRevealMask,
         args.softMask,
         args.proof
       ]),
@@ -1383,12 +1420,17 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.playerCiphertextRef,
         args.dealerCiphertextRef,
         args.dealerVisibleValue,
+        args.playerCards,
+        args.dealerCards,
         args.handCount,
         args.activeHandIndex,
         args.nextPhase,
         args.handValues,
         args.handStatuses,
         args.allowedActionMasks,
+        args.handCardCounts,
+        args.handPayoutKinds,
+        args.dealerRevealMask,
         args.softMask,
         args.proof
       ]),
@@ -1399,9 +1441,15 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.dealerStateCommitment,
         args.payout,
         args.dealerFinalValue,
+        args.playerCards,
+        args.dealerCards,
         args.handCount,
         args.activeHandIndex,
         args.handStatuses,
+        args.handValues,
+        args.handCardCounts,
+        args.handPayoutKinds,
+        args.dealerRevealMask,
         args.proof
       ]),
     deployNumberPickerModule: (params: Parameters<typeof encodeNumberPickerDeployment>[0]) =>
@@ -1447,14 +1495,33 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
       read.blackjack.settlementOutcome(sessionId) as Promise<any>,
       read.blackjack.sessionSettled(sessionId) as Promise<any>
     ]);
+    const hands = session.hands.map((hand: any) => ({
+      ...hand,
+      cardCount: Number(hand.cardCount),
+      payoutKind: Number(hand.payoutKind)
+    }));
+    const playerCards = session.playerCards.map((card: number | bigint) => Number(card));
+    const dealerCards = session.dealerCards.map((card: number | bigint) => Number(card));
+    const dealerRevealMask = Number(session.dealerRevealMask);
+    const normalizedSession = {
+      ...session,
+      hands,
+      playerCards,
+      dealerCards,
+      dealerRevealMask
+    };
     const phaseLabel = decodeBlackjackSessionPhase(session.phase);
-    const allowedActions = session.hands.map((hand: any) => decodeBlackjackActionMask(hand.allowedActionMask));
+    const allowedActions = hands.map((hand: any) => decodeBlackjackActionMask(hand.allowedActionMask));
 
     return {
-      session,
+      session: normalizedSession,
       settlementOutcome,
       sessionSettled,
       phaseLabel,
+      hands,
+      playerCards,
+      dealerCards,
+      dealerRevealMask,
       allowedActions
     };
   }

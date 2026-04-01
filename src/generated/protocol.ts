@@ -67,28 +67,6 @@ export const protocolManifest = {
       ]
     },
     {
-      "name": "GameEngineRegistry",
-      "category": "core",
-      "source": "src/GameEngineRegistry.sol",
-      "artifact": "out/GameEngineRegistry.sol/GameEngineRegistry.json",
-      "reference_doc": "docs/reference/game-engine-registry.md",
-      "abi_path": "docs/generated/contracts/GameEngineRegistry.abi.json",
-      "functions": [
-        "getDeveloperRewardConfig",
-        "getEngineMetadata",
-        "isActive",
-        "isRegisteredForPvP",
-        "isRegisteredForSolo",
-        "isRegisteredForTournament",
-        "registerEngine",
-        "setEngineActive"
-      ],
-      "events": [
-        "EngineDeactivated",
-        "EngineRegistered"
-      ]
-    },
-    {
       "name": "DeveloperExpressionRegistry",
       "category": "economics",
       "source": "src/DeveloperExpressionRegistry.sol",
@@ -466,6 +444,28 @@ export const protocolManifest = {
       "events": []
     },
     {
+      "name": "GameEngineRegistry",
+      "category": "core",
+      "source": "src/GameEngineRegistry.sol",
+      "artifact": "out/GameEngineRegistry.sol/GameEngineRegistry.json",
+      "reference_doc": "docs/reference/game-engine-registry.md",
+      "abi_path": "out/GameEngineRegistry.sol/GameEngineRegistry.json",
+      "functions": [
+        "getDeveloperRewardConfig",
+        "getEngineMetadata",
+        "isActive",
+        "isRegisteredForPvP",
+        "isRegisteredForSolo",
+        "isRegisteredForTournament",
+        "registerEngine",
+        "setEngineActive"
+      ],
+      "events": [
+        "EngineDeactivated",
+        "EngineRegistered"
+      ]
+    },
+    {
       "name": "SlotMachineController",
       "category": "controller",
       "source": "src/controllers/SlotMachineController.sol",
@@ -650,6 +650,14 @@ export const protocolManifest = {
       "4": "ALLOW_DOUBLE",
       "8": "ALLOW_SPLIT"
     },
+    "SingleDeckBlackjackEngine.HandPayoutKind": {
+      "0": "HAND_PAYOUT_NONE",
+      "1": "HAND_PAYOUT_LOSS",
+      "2": "HAND_PAYOUT_PUSH",
+      "3": "HAND_PAYOUT_EVEN_MONEY",
+      "4": "HAND_PAYOUT_BLACKJACK_3_TO_2",
+      "5": "HAND_PAYOUT_SUITED_BLACKJACK_2_TO_1"
+    },
     "SingleDraw2To7Engine.MatchState": {
       "0": "Inactive",
       "1": "Active",
@@ -717,6 +725,7 @@ export const protocolManifest = {
       "playerCiphertextRef",
       "dealerCiphertextRef",
       "dealerUpValue",
+      "baseWager",
       "handCount",
       "activeHandIndex",
       "payout",
@@ -724,7 +733,12 @@ export const protocolManifest = {
       "handValues",
       "softMask",
       "handStatuses",
-      "allowedActionMasks"
+      "allowedActionMasks",
+      "handCardCounts",
+      "handPayoutKinds",
+      "playerCards",
+      "dealerCards",
+      "dealerRevealMask"
     ],
     "IBlackjackVerifierBundle.ActionPublicInputs": [
       "sessionId",
@@ -743,7 +757,12 @@ export const protocolManifest = {
       "handValues",
       "softMask",
       "handStatuses",
-      "allowedActionMasks"
+      "allowedActionMasks",
+      "handCardCounts",
+      "handPayoutKinds",
+      "playerCards",
+      "dealerCards",
+      "dealerRevealMask"
     ],
     "IBlackjackVerifierBundle.ShowdownPublicInputs": [
       "sessionId",
@@ -754,7 +773,14 @@ export const protocolManifest = {
       "dealerFinalValue",
       "handCount",
       "activeHandIndex",
-      "handStatuses"
+      "handStatuses",
+      "handValues",
+      "handWagers",
+      "handCardCounts",
+      "handPayoutKinds",
+      "playerCards",
+      "dealerCards",
+      "dealerRevealMask"
     ]
   },
   "local_defaults": {
@@ -780,7 +806,7 @@ export const protocolManifest = {
       "developer_reward_bps": 1000
     },
     "blackjack": {
-      "config_hash_label": "single-deck-blackjack-zk",
+      "config_hash_label": "single-deck-blackjack-zk-v2",
       "default_action_window": 60,
       "developer_reward_bps": 500
     }
@@ -871,6 +897,14 @@ export const enumLabels = {
     "4": "ALLOW_DOUBLE",
     "8": "ALLOW_SPLIT"
   },
+  "SingleDeckBlackjackEngine.HandPayoutKind": {
+    "0": "HAND_PAYOUT_NONE",
+    "1": "HAND_PAYOUT_LOSS",
+    "2": "HAND_PAYOUT_PUSH",
+    "3": "HAND_PAYOUT_EVEN_MONEY",
+    "4": "HAND_PAYOUT_BLACKJACK_3_TO_2",
+    "5": "HAND_PAYOUT_SUITED_BLACKJACK_2_TO_1"
+  },
   "SingleDraw2To7Engine.MatchState": {
     "0": "Inactive",
     "1": "Active",
@@ -946,33 +980,6 @@ export const eventSignatures = {
     {
       "name": "ModuleDeployed",
       "signature": "ModuleDeployed(uint256,uint8,uint8,address,address,address,bytes32)",
-      "anonymous": false
-    },
-    {
-      "name": "RoleAdminChanged",
-      "signature": "RoleAdminChanged(bytes32,bytes32,bytes32)",
-      "anonymous": false
-    },
-    {
-      "name": "RoleGranted",
-      "signature": "RoleGranted(bytes32,address,address)",
-      "anonymous": false
-    },
-    {
-      "name": "RoleRevoked",
-      "signature": "RoleRevoked(bytes32,address,address)",
-      "anonymous": false
-    }
-  ],
-  "GameEngineRegistry": [
-    {
-      "name": "EngineDeactivated",
-      "signature": "EngineDeactivated(address,bool)",
-      "anonymous": false
-    },
-    {
-      "name": "EngineRegistered",
-      "signature": "EngineRegistered(address,bytes32,uint16)",
       "anonymous": false
     },
     {
@@ -1401,6 +1408,33 @@ export const eventSignatures = {
   "IPokerZKEngine": [],
   "IPokerVerifierBundle": [],
   "IBlackjackVerifierBundle": [],
+  "GameEngineRegistry": [
+    {
+      "name": "EngineDeactivated",
+      "signature": "EngineDeactivated(address,bool)",
+      "anonymous": false
+    },
+    {
+      "name": "EngineRegistered",
+      "signature": "EngineRegistered(address,bytes32,uint16)",
+      "anonymous": false
+    },
+    {
+      "name": "RoleAdminChanged",
+      "signature": "RoleAdminChanged(bytes32,bytes32,bytes32)",
+      "anonymous": false
+    },
+    {
+      "name": "RoleGranted",
+      "signature": "RoleGranted(bytes32,address,address)",
+      "anonymous": false
+    },
+    {
+      "name": "RoleRevoked",
+      "signature": "RoleRevoked(bytes32,address,address)",
+      "anonymous": false
+    }
+  ],
   "SlotMachineController": [
     {
       "name": "SpinFinalized",
@@ -1576,6 +1610,7 @@ export const proofInputs = {
     "playerCiphertextRef",
     "dealerCiphertextRef",
     "dealerUpValue",
+    "baseWager",
     "handCount",
     "activeHandIndex",
     "payout",
@@ -1583,7 +1618,12 @@ export const proofInputs = {
     "handValues",
     "softMask",
     "handStatuses",
-    "allowedActionMasks"
+    "allowedActionMasks",
+    "handCardCounts",
+    "handPayoutKinds",
+    "playerCards",
+    "dealerCards",
+    "dealerRevealMask"
   ],
   "IBlackjackVerifierBundle.ActionPublicInputs": [
     "sessionId",
@@ -1602,7 +1642,12 @@ export const proofInputs = {
     "handValues",
     "softMask",
     "handStatuses",
-    "allowedActionMasks"
+    "allowedActionMasks",
+    "handCardCounts",
+    "handPayoutKinds",
+    "playerCards",
+    "dealerCards",
+    "dealerRevealMask"
   ],
   "IBlackjackVerifierBundle.ShowdownPublicInputs": [
     "sessionId",
@@ -1613,7 +1658,14 @@ export const proofInputs = {
     "dealerFinalValue",
     "handCount",
     "activeHandIndex",
-    "handStatuses"
+    "handStatuses",
+    "handValues",
+    "handWagers",
+    "handCardCounts",
+    "handPayoutKinds",
+    "playerCards",
+    "dealerCards",
+    "dealerRevealMask"
   ]
 } as const;
 export const abis = {
@@ -2245,6 +2297,31 @@ export const abis = {
               "name": "allowedActionMasks",
               "type": "uint256[4]",
               "internalType": "uint256[4]"
+            },
+            {
+              "name": "handCardCounts",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handPayoutKinds",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "playerCards",
+              "type": "uint256[8]",
+              "internalType": "uint256[8]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint256",
+              "internalType": "uint256"
             }
           ]
         }
@@ -2318,6 +2395,11 @@ export const abis = {
               "internalType": "uint256"
             },
             {
+              "name": "baseWager",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
               "name": "handCount",
               "type": "uint256",
               "internalType": "uint256"
@@ -2356,6 +2438,31 @@ export const abis = {
               "name": "allowedActionMasks",
               "type": "uint256[4]",
               "internalType": "uint256[4]"
+            },
+            {
+              "name": "handCardCounts",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handPayoutKinds",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "playerCards",
+              "type": "uint256[8]",
+              "internalType": "uint256[8]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint256",
+              "internalType": "uint256"
             }
           ]
         }
@@ -2427,6 +2534,41 @@ export const abis = {
               "name": "handStatuses",
               "type": "uint256[4]",
               "internalType": "uint256[4]"
+            },
+            {
+              "name": "handValues",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handWagers",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handCardCounts",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handPayoutKinds",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "playerCards",
+              "type": "uint256[8]",
+              "internalType": "uint256[8]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint256",
+              "internalType": "uint256"
             }
           ]
         }
@@ -4708,6 +4850,26 @@ export const abis = {
           "name": "settlementAddress",
           "type": "address",
           "internalType": "address"
+        },
+        {
+          "name": "soloModuleDeployer",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "blackjackModuleDeployer",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "pokerModuleDeployer",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "cheminDeFerModuleDeployer",
+          "type": "address",
+          "internalType": "address"
         }
       ],
       "stateMutability": "nonpayable"
@@ -5143,540 +5305,6 @@ export const abis = {
       ]
     }
   ],
-  "GameEngineRegistry": [
-    {
-      "type": "constructor",
-      "inputs": [
-        {
-          "name": "admin",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "DEFAULT_ADMIN_ROLE",
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "REGISTRAR_ROLE",
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "getDeveloperRewardConfig",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "engineType",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        },
-        {
-          "name": "developerRewardBps",
-          "type": "uint16",
-          "internalType": "uint16"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "getEngineMetadata",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple",
-          "internalType": "struct GameEngineRegistry.EngineMetadata",
-          "components": [
-            {
-              "name": "engineType",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "verifier",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "configHash",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "developerRewardBps",
-              "type": "uint16",
-              "internalType": "uint16"
-            },
-            {
-              "name": "active",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "supportsTournament",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "supportsPvP",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "supportsSolo",
-              "type": "bool",
-              "internalType": "bool"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "getRoleAdmin",
-      "inputs": [
-        {
-          "name": "role",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "grantRole",
-      "inputs": [
-        {
-          "name": "role",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        },
-        {
-          "name": "account",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "hasRole",
-      "inputs": [
-        {
-          "name": "role",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        },
-        {
-          "name": "account",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "isActive",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "isRegisteredForPvP",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "isRegisteredForSolo",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "isRegisteredForTournament",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "registerEngine",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "internalType": "address"
-        },
-        {
-          "name": "metadata",
-          "type": "tuple",
-          "internalType": "struct GameEngineRegistry.EngineMetadata",
-          "components": [
-            {
-              "name": "engineType",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "verifier",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "configHash",
-              "type": "bytes32",
-              "internalType": "bytes32"
-            },
-            {
-              "name": "developerRewardBps",
-              "type": "uint16",
-              "internalType": "uint16"
-            },
-            {
-              "name": "active",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "supportsTournament",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "supportsPvP",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "supportsSolo",
-              "type": "bool",
-              "internalType": "bool"
-            }
-          ]
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "renounceRole",
-      "inputs": [
-        {
-          "name": "role",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        },
-        {
-          "name": "callerConfirmation",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "revokeRole",
-      "inputs": [
-        {
-          "name": "role",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        },
-        {
-          "name": "account",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "setEngineActive",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "internalType": "address"
-        },
-        {
-          "name": "active",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "supportsInterface",
-      "inputs": [
-        {
-          "name": "interfaceId",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "event",
-      "name": "EngineDeactivated",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        },
-        {
-          "name": "active",
-          "type": "bool",
-          "indexed": false,
-          "internalType": "bool"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
-      "name": "EngineRegistered",
-      "inputs": [
-        {
-          "name": "engine",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        },
-        {
-          "name": "engineType",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        },
-        {
-          "name": "developerRewardBps",
-          "type": "uint16",
-          "indexed": false,
-          "internalType": "uint16"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
-      "name": "RoleAdminChanged",
-      "inputs": [
-        {
-          "name": "role",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        },
-        {
-          "name": "previousAdminRole",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        },
-        {
-          "name": "newAdminRole",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
-      "name": "RoleGranted",
-      "inputs": [
-        {
-          "name": "role",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        },
-        {
-          "name": "account",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        },
-        {
-          "name": "sender",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
-      "name": "RoleRevoked",
-      "inputs": [
-        {
-          "name": "role",
-          "type": "bytes32",
-          "indexed": true,
-          "internalType": "bytes32"
-        },
-        {
-          "name": "account",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        },
-        {
-          "name": "sender",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "error",
-      "name": "AccessControlBadConfirmation",
-      "inputs": []
-    },
-    {
-      "type": "error",
-      "name": "AccessControlUnauthorizedAccount",
-      "inputs": [
-        {
-          "name": "account",
-          "type": "address",
-          "internalType": "address"
-        },
-        {
-          "name": "neededRole",
-          "type": "bytes32",
-          "internalType": "bytes32"
-        }
-      ]
-    }
-  ],
   "IBlackjackVerifierBundle": [
     {
       "type": "function",
@@ -5776,6 +5404,31 @@ export const abis = {
               "name": "allowedActionMasks",
               "type": "uint256[4]",
               "internalType": "uint256[4]"
+            },
+            {
+              "name": "handCardCounts",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handPayoutKinds",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "playerCards",
+              "type": "uint256[8]",
+              "internalType": "uint256[8]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint256",
+              "internalType": "uint256"
             }
           ]
         }
@@ -5849,6 +5502,11 @@ export const abis = {
               "internalType": "uint256"
             },
             {
+              "name": "baseWager",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
               "name": "handCount",
               "type": "uint256",
               "internalType": "uint256"
@@ -5887,6 +5545,31 @@ export const abis = {
               "name": "allowedActionMasks",
               "type": "uint256[4]",
               "internalType": "uint256[4]"
+            },
+            {
+              "name": "handCardCounts",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handPayoutKinds",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "playerCards",
+              "type": "uint256[8]",
+              "internalType": "uint256[8]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint256",
+              "internalType": "uint256"
             }
           ]
         }
@@ -5958,6 +5641,41 @@ export const abis = {
               "name": "handStatuses",
               "type": "uint256[4]",
               "internalType": "uint256[4]"
+            },
+            {
+              "name": "handValues",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handWagers",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handCardCounts",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "handPayoutKinds",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "playerCards",
+              "type": "uint256[8]",
+              "internalType": "uint256[8]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint256[4]",
+              "internalType": "uint256[4]"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint256",
+              "internalType": "uint256"
             }
           ]
         }
@@ -12691,6 +12409,19 @@ export const abis = {
     },
     {
       "type": "function",
+      "name": "CARD_EMPTY",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "COORDINATOR",
       "inputs": [],
       "outputs": [
@@ -12724,6 +12455,84 @@ export const abis = {
           "name": "",
           "type": "bytes32",
           "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_BLACKJACK_3_TO_2",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_EVEN_MONEY",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_LOSS",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_NONE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_PUSH",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_SUITED_BLACKJACK_2_TO_1",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
         }
       ],
       "stateMutability": "view"
@@ -12935,6 +12744,11 @@ export const abis = {
               "internalType": "uint256"
             },
             {
+              "name": "dealerRevealMask",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
               "name": "hands",
               "type": "tuple[4]",
               "internalType": "struct SingleDeckBlackjackEngine.HandView[4]",
@@ -12958,8 +12772,28 @@ export const abis = {
                   "name": "allowedActionMask",
                   "type": "uint8",
                   "internalType": "uint8"
+                },
+                {
+                  "name": "cardCount",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "payoutKind",
+                  "type": "uint8",
+                  "internalType": "uint8"
                 }
               ]
+            },
+            {
+              "name": "playerCards",
+              "type": "uint8[8]",
+              "internalType": "uint8[8]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint8[4]",
+              "internalType": "uint8[4]"
             }
           ]
         }
@@ -13106,6 +12940,16 @@ export const abis = {
           "internalType": "uint256"
         },
         {
+          "name": "playerCards",
+          "type": "uint8[8]",
+          "internalType": "uint8[8]"
+        },
+        {
+          "name": "dealerCards",
+          "type": "uint8[4]",
+          "internalType": "uint8[4]"
+        },
+        {
           "name": "handCount",
           "type": "uint8",
           "internalType": "uint8"
@@ -13134,6 +12978,21 @@ export const abis = {
           "name": "allowedActionMasks",
           "type": "uint8[4]",
           "internalType": "uint8[4]"
+        },
+        {
+          "name": "handCardCounts",
+          "type": "uint8[4]",
+          "internalType": "uint8[4]"
+        },
+        {
+          "name": "handPayoutKinds",
+          "type": "uint8[4]",
+          "internalType": "uint8[4]"
+        },
+        {
+          "name": "dealerRevealMask",
+          "type": "uint8",
+          "internalType": "uint8"
         },
         {
           "name": "softMask",
@@ -13194,6 +13053,16 @@ export const abis = {
           "internalType": "uint256"
         },
         {
+          "name": "playerCards",
+          "type": "uint8[8]",
+          "internalType": "uint8[8]"
+        },
+        {
+          "name": "dealerCards",
+          "type": "uint8[4]",
+          "internalType": "uint8[4]"
+        },
+        {
           "name": "handCount",
           "type": "uint8",
           "internalType": "uint8"
@@ -13227,6 +13096,21 @@ export const abis = {
           "name": "allowedActionMasks",
           "type": "uint8[4]",
           "internalType": "uint8[4]"
+        },
+        {
+          "name": "handCardCounts",
+          "type": "uint8[4]",
+          "internalType": "uint8[4]"
+        },
+        {
+          "name": "handPayoutKinds",
+          "type": "uint8[4]",
+          "internalType": "uint8[4]"
+        },
+        {
+          "name": "dealerRevealMask",
+          "type": "uint8",
+          "internalType": "uint8"
         },
         {
           "name": "softMask",
@@ -13272,6 +13156,16 @@ export const abis = {
           "internalType": "uint256"
         },
         {
+          "name": "playerCards",
+          "type": "uint8[8]",
+          "internalType": "uint8[8]"
+        },
+        {
+          "name": "dealerCards",
+          "type": "uint8[4]",
+          "internalType": "uint8[4]"
+        },
+        {
           "name": "handCount",
           "type": "uint8",
           "internalType": "uint8"
@@ -13285,6 +13179,26 @@ export const abis = {
           "name": "handStatuses",
           "type": "uint8[4]",
           "internalType": "uint8[4]"
+        },
+        {
+          "name": "handValues",
+          "type": "uint256[4]",
+          "internalType": "uint256[4]"
+        },
+        {
+          "name": "handCardCounts",
+          "type": "uint8[4]",
+          "internalType": "uint8[4]"
+        },
+        {
+          "name": "handPayoutKinds",
+          "type": "uint8[4]",
+          "internalType": "uint8[4]"
+        },
+        {
+          "name": "dealerRevealMask",
+          "type": "uint8",
+          "internalType": "uint8"
         },
         {
           "name": "proof",
@@ -14908,6 +14822,540 @@ export const abis = {
       "type": "error",
       "name": "ReentrancyGuardReentrantCall",
       "inputs": []
+    }
+  ],
+  "GameEngineRegistry": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "admin",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "DEFAULT_ADMIN_ROLE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "REGISTRAR_ROLE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getDeveloperRewardConfig",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "engineType",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "developerRewardBps",
+          "type": "uint16",
+          "internalType": "uint16"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getEngineMetadata",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct GameEngineRegistry.EngineMetadata",
+          "components": [
+            {
+              "name": "engineType",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "verifier",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "configHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "developerRewardBps",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "active",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "supportsTournament",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "supportsPvP",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "supportsSolo",
+              "type": "bool",
+              "internalType": "bool"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getRoleAdmin",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "grantRole",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "hasRole",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "isActive",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "isRegisteredForPvP",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "isRegisteredForSolo",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "isRegisteredForTournament",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "registerEngine",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "metadata",
+          "type": "tuple",
+          "internalType": "struct GameEngineRegistry.EngineMetadata",
+          "components": [
+            {
+              "name": "engineType",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "verifier",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "configHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "developerRewardBps",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "active",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "supportsTournament",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "supportsPvP",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "supportsSolo",
+              "type": "bool",
+              "internalType": "bool"
+            }
+          ]
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "renounceRole",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "callerConfirmation",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "revokeRole",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setEngineActive",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "inputs": [
+        {
+          "name": "interfaceId",
+          "type": "bytes4",
+          "internalType": "bytes4"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "EngineDeactivated",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "EngineRegistered",
+      "inputs": [
+        {
+          "name": "engine",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "engineType",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "developerRewardBps",
+          "type": "uint16",
+          "indexed": false,
+          "internalType": "uint16"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "RoleAdminChanged",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "previousAdminRole",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "newAdminRole",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "RoleGranted",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "sender",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "RoleRevoked",
+      "inputs": [
+        {
+          "name": "role",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "account",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "sender",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "AccessControlBadConfirmation",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "AccessControlUnauthorizedAccount",
+      "inputs": [
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "neededRole",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ]
     }
   ],
   "SlotMachineController": [
@@ -18297,7 +18745,6 @@ export const contractNames = [
   "ProtocolSettlement",
   "GameCatalog",
   "GameDeploymentFactory",
-  "GameEngineRegistry",
   "DeveloperExpressionRegistry",
   "DeveloperRewards",
   "ScuroToken",
@@ -18319,6 +18766,7 @@ export const contractNames = [
   "IPokerZKEngine",
   "IPokerVerifierBundle",
   "IBlackjackVerifierBundle",
+  "GameEngineRegistry",
   "SlotMachineController",
   "SuperBaccaratController",
   "CheminDeFerController",

@@ -142,6 +142,8 @@ const blackjack = scuro.coordinator.blackjack({
         playerCiphertextRef,
         dealerCiphertextRef,
         dealerVisibleValue,
+        playerCards,
+        dealerCards,
         handCount,
         activeHandIndex,
         payout,
@@ -149,6 +151,9 @@ const blackjack = scuro.coordinator.blackjack({
         handValues,
         handStatuses,
         allowedActionMasks,
+        handCardCounts,
+        handPayoutKinds,
+        dealerRevealMask,
         softMask,
         proof
       };
@@ -163,12 +168,17 @@ const blackjack = scuro.coordinator.blackjack({
             playerCiphertextRef,
             dealerCiphertextRef,
             dealerVisibleValue,
+            playerCards,
+            dealerCards,
             handCount,
             activeHandIndex,
             nextPhase,
             handValues,
             handStatuses,
             allowedActionMasks,
+            handCardCounts,
+            handPayoutKinds,
+            dealerRevealMask,
             softMask,
             proof
           }
@@ -182,9 +192,15 @@ const blackjack = scuro.coordinator.blackjack({
           dealerStateCommitment,
           payout,
           dealerFinalValue,
+          playerCards,
+          dealerCards,
           handCount,
           activeHandIndex,
           handStatuses,
+          handValues,
+          handCardCounts,
+          handPayoutKinds,
+          dealerRevealMask,
           proof
         }
       };
@@ -192,6 +208,8 @@ const blackjack = scuro.coordinator.blackjack({
   }
 });
 ```
+
+For blackjack v2, coordinator workers should treat `handPayoutKinds`, `handCardCounts`, `playerCards`, `dealerCards`, and `dealerRevealMask` as proof-backed state, not UI-derived summaries.
 
 The blackjack coordinator currently handles:
 

@@ -69,6 +69,10 @@ For the GitHub Actions release path:
 The publish workflow uses npm trusted publishing via GitHub OIDC, so the normal GitHub Release flow does not need an `NPM_TOKEN`.
 The external prerequisite is on npm: this repository and `.github/workflows/publish.yml` must be registered as a trusted publisher for `@scuro/sdk`.
 For beta publishes, the workflow now also assumes `SCURO_BETA_AWS_ROLE_ARN` through GitHub OIDC so it can read the canonical release artifacts from S3 and load runtime signer keys from SSM.
+If the AWS credential step fails with `Could not load credentials from any providers`, treat that as an AWS/OIDC setup problem rather than an npm publish problem:
+- `SCURO_BETA_AWS_ROLE_ARN` is missing, empty, or scoped to a GitHub environment this job does not use
+- the IAM role trust policy does not allow this repository/workflow to assume the role via GitHub OIDC
+- the workflow is missing `id-token: write`
 
 ## Canonical publish flow
 

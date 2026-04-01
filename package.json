@@ -1,6 +1,6 @@
 {
   "name": "@scuro/sdk",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "description": "Server-side TypeScript SDK for the Scuro protocol",
   "type": "module",
   "main": "./dist/index.js",

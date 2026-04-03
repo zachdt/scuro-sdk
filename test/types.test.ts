@@ -19,12 +19,12 @@ describe("enum helpers", () => {
     expect(decodeGameMode(2)).toBe("Tournament");
     expect(decodeBaccaratSide(1)).toBe("Banker");
     expect(decodeBaccaratOutcome(2)).toBe("Tie");
-    expect(decodeBlackjackSessionPhase(3)).toBe("AwaitingCoordinator");
+    expect(decodeBlackjackSessionPhase(3)).toBe("AwaitingPeekResolution");
     expect(decodePokerHandPhase(4)).toBe("DrawProofPending");
     expect(decodeBlackjackActionMask(5)).toEqual(["ALLOW_HIT", "ALLOW_DOUBLE"]);
     expect(decodeBlackjackHandPayoutKind(2)).toBe("HAND_PAYOUT_PUSH");
     expect(decodeBlackjackHandPayoutKind(4)).toBe("HAND_PAYOUT_BLACKJACK_3_TO_2");
-    expect(decodeBlackjackHandPayoutKind(5)).toBe("HAND_PAYOUT_SUITED_BLACKJACK_2_TO_1");
+    expect(decodeBlackjackHandPayoutKind(5)).toBe("HAND_PAYOUT_SURRENDER");
   });
 
   test("decode blackjack card proxies, reveal masks, and grouped hands", () => {
@@ -41,7 +41,7 @@ describe("enum helpers", () => {
       suit: 2
     });
     expect(decodeCardProxy(BLACKJACK_CARD_EMPTY)).toEqual({
-      raw: 52,
+      raw: 104,
       isEmpty: true,
       rank: null,
       suit: null
@@ -52,11 +52,16 @@ describe("enum helpers", () => {
       slots: [true, false, true, false]
     });
 
-    expect(groupBlackjackPlayerCards([0, 12, 13, 14, 15, 52, 52, 52], [2, 3, 0, 0])).toEqual([
-      [0, 12],
-      [13, 14, 15],
-      [],
-      []
-    ]);
+    expect(
+      groupBlackjackPlayerCards(
+        [0, 12, 13, 14, 15, 104, 104, 104],
+        [
+          { cardCount: 2, cardStartIndex: 0 },
+          { cardCount: 3, cardStartIndex: 2 },
+          { cardCount: 0, cardStartIndex: 0 },
+          { cardCount: 0, cardStartIndex: 0 }
+        ]
+      )
+    ).toEqual([[0, 12], [13, 14, 15], [], []]);
   });
 });

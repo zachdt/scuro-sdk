@@ -618,6 +618,44 @@ export const protocolManifest = {
         "requestResolution"
       ],
       "events": []
+    },
+    {
+      "name": "BlackjackEngine",
+      "category": "engine",
+      "source": "src/engines/BlackjackEngine.sol",
+      "artifact": "out/BlackjackEngine.sol/BlackjackEngine.json",
+      "reference_doc": "docs/reference/blackjack-engine.md",
+      "abi_path": "out/BlackjackEngine.sol/BlackjackEngine.json",
+      "functions": [
+        "catalog",
+        "claimPlayerTimeout",
+        "continuePlay",
+        "declareAction",
+        "declareInsurance",
+        "engineType",
+        "getSession",
+        "getSettlementOutcome",
+        "maxInsuranceStake",
+        "openSession",
+        "requiredAdditionalBurn",
+        "submitActionProof",
+        "submitInitialDealProof",
+        "submitPeekProof",
+        "submitShowdownProof",
+        "surrender"
+      ],
+      "events": [
+        "ActionDeclared",
+        "ActionResolved",
+        "ContinueDeclared",
+        "InitialDealResolved",
+        "InsuranceDeclared",
+        "PeekResolved",
+        "PlayerTimeoutClaimed",
+        "SessionOpened",
+        "ShowdownResolved",
+        "SurrenderResolved"
+      ]
     }
   ],
   "enum_labels": {
@@ -682,6 +720,36 @@ export const protocolManifest = {
       "0": "PlayerWin",
       "1": "BankerWin",
       "2": "Tie"
+    },
+    "BlackjackEngine.SessionPhase": {
+      "0": "Inactive",
+      "1": "AwaitingInitialDeal",
+      "2": "AwaitingPrePlayDecision",
+      "3": "AwaitingPeekResolution",
+      "4": "AwaitingPostPeekDecision",
+      "5": "AwaitingPlayerAction",
+      "6": "AwaitingCoordinatorAction",
+      "7": "Completed"
+    },
+    "BlackjackEngine.HandPayoutKind": {
+      "0": "HAND_PAYOUT_NONE",
+      "1": "HAND_PAYOUT_LOSS",
+      "2": "HAND_PAYOUT_PUSH",
+      "3": "HAND_PAYOUT_EVEN_MONEY",
+      "4": "HAND_PAYOUT_BLACKJACK_3_TO_2",
+      "5": "HAND_PAYOUT_SURRENDER"
+    },
+    "BlackjackEngine.Action": {
+      "1": "ACTION_HIT",
+      "2": "ACTION_STAND",
+      "3": "ACTION_DOUBLE",
+      "4": "ACTION_SPLIT"
+    },
+    "BlackjackEngine.ActionMask": {
+      "1": "ALLOW_HIT",
+      "2": "ALLOW_STAND",
+      "4": "ALLOW_DOUBLE",
+      "8": "ALLOW_SPLIT"
     }
   },
   "proof_inputs": {
@@ -840,7 +908,8 @@ export const protocolManifest = {
       "SingleDeckBlackjackEngine",
       "SlotMachineEngine",
       "SuperBaccaratEngine",
-      "CheminDeFerEngine"
+      "CheminDeFerEngine",
+      "BlackjackEngine"
     ],
     "verifiers": [
       "TournamentPokerVerifierBundle",
@@ -929,6 +998,36 @@ export const enumLabels = {
     "0": "PlayerWin",
     "1": "BankerWin",
     "2": "Tie"
+  },
+  "BlackjackEngine.SessionPhase": {
+    "0": "Inactive",
+    "1": "AwaitingInitialDeal",
+    "2": "AwaitingPrePlayDecision",
+    "3": "AwaitingPeekResolution",
+    "4": "AwaitingPostPeekDecision",
+    "5": "AwaitingPlayerAction",
+    "6": "AwaitingCoordinatorAction",
+    "7": "Completed"
+  },
+  "BlackjackEngine.HandPayoutKind": {
+    "0": "HAND_PAYOUT_NONE",
+    "1": "HAND_PAYOUT_LOSS",
+    "2": "HAND_PAYOUT_PUSH",
+    "3": "HAND_PAYOUT_EVEN_MONEY",
+    "4": "HAND_PAYOUT_BLACKJACK_3_TO_2",
+    "5": "HAND_PAYOUT_SURRENDER"
+  },
+  "BlackjackEngine.Action": {
+    "1": "ACTION_HIT",
+    "2": "ACTION_STAND",
+    "3": "ACTION_DOUBLE",
+    "4": "ACTION_SPLIT"
+  },
+  "BlackjackEngine.ActionMask": {
+    "1": "ALLOW_HIT",
+    "2": "ALLOW_STAND",
+    "4": "ALLOW_DOUBLE",
+    "8": "ALLOW_SPLIT"
   }
 } as const;
 export const eventSignatures = {
@@ -1567,7 +1666,59 @@ export const eventSignatures = {
       "anonymous": false
     }
   ],
-  "ICheminDeFerEngine": []
+  "ICheminDeFerEngine": [],
+  "BlackjackEngine": [
+    {
+      "name": "ActionDeclared",
+      "signature": "ActionDeclared(uint256,address,uint8,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "ActionResolved",
+      "signature": "ActionResolved(uint256,uint8,uint8)",
+      "anonymous": false
+    },
+    {
+      "name": "ContinueDeclared",
+      "signature": "ContinueDeclared(uint256,address,uint8)",
+      "anonymous": false
+    },
+    {
+      "name": "InitialDealResolved",
+      "signature": "InitialDealResolved(uint256,uint8,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "InsuranceDeclared",
+      "signature": "InsuranceDeclared(uint256,address,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "PeekResolved",
+      "signature": "PeekResolved(uint256,uint8,uint8)",
+      "anonymous": false
+    },
+    {
+      "name": "PlayerTimeoutClaimed",
+      "signature": "PlayerTimeoutClaimed(uint256,uint8)",
+      "anonymous": false
+    },
+    {
+      "name": "SessionOpened",
+      "signature": "SessionOpened(uint256,address,uint256,bytes32)",
+      "anonymous": false
+    },
+    {
+      "name": "ShowdownResolved",
+      "signature": "ShowdownResolved(uint256,uint256)",
+      "anonymous": false
+    },
+    {
+      "name": "SurrenderResolved",
+      "signature": "SurrenderResolved(uint256,address,uint256)",
+      "anonymous": false
+    }
+  ]
 } as const;
 export const proofInputs = {
   "IPokerVerifierBundle.InitialDealPublicInputs": [
@@ -18739,6 +18890,2054 @@ export const abis = {
       ],
       "stateMutability": "nonpayable"
     }
+  ],
+  "BlackjackEngine": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "catalogAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "verifierBundleAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "coordinatorAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "defaultActionWindow",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "ACTION_DOUBLE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ACTION_HIT",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ACTION_SPLIT",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ACTION_STAND",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ALLOW_DOUBLE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ALLOW_HIT",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ALLOW_SPLIT",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ALLOW_STAND",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "CARD_EMPTY",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "COORDINATOR",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "DECISION_EARLY_SURRENDER",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "DECISION_INSURANCE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "DECISION_LATE_SURRENDER",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "DECISION_NONE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "DEFAULT_ACTION_WINDOW",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ENGINE_TYPE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_BLACKJACK_3_TO_2",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_EVEN_MONEY",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_LOSS",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_NONE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_PUSH",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_PAYOUT_SURRENDER",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_STATUS_ACTIVE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_STATUS_BLACKJACK",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_STATUS_BUST",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_STATUS_LOSS",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_STATUS_NONE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_STATUS_PUSH",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_STATUS_STAND",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_STATUS_SURRENDERED",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HAND_STATUS_WIN",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "INSURANCE_AVAILABLE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "INSURANCE_DECLINED",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "INSURANCE_LOST",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "INSURANCE_NONE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "INSURANCE_TAKEN",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "INSURANCE_WON",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "SURRENDER_AVAILABLE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "SURRENDER_DECLINED",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "SURRENDER_NONE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "SURRENDER_TAKEN",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "SURRENDER_VOID",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "VERIFIER_BUNDLE",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract IBlackjackVerifierBundle"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "catalog",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract GameCatalog"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "claimPlayerTimeout",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "continuePlay",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "declareAction",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "action",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "additionalBurn",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "declareInsurance",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "engineType",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "getSession",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "viewState",
+          "type": "tuple",
+          "internalType": "struct BlackjackEngine.SessionView",
+          "components": [
+            {
+              "name": "player",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "wager",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "totalBurned",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "playRef",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "phase",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "actionWindow",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "deadlineAt",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "proofSequence",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "deckCommitment",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "handNonce",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "playerStateCommitment",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "dealerStateCommitment",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "playerKeyCommitment",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "playerCiphertextRef",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "dealerCiphertextRef",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "pendingAction",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "decisionType",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "handCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "activeHandIndex",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekResolved",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerHasBlackjack",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerUpValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "dealerFinalValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "payout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insuranceStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insurancePayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "hands",
+              "type": "tuple[4]",
+              "internalType": "struct BlackjackEngine.HandView[4]",
+              "components": [
+                {
+                  "name": "wager",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "value",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "status",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "allowedActionMask",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardCount",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardStartIndex",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "payoutKind",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                }
+              ]
+            },
+            {
+              "name": "playerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getSettlementOutcome",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "totalBurned",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "completed",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "maxInsuranceStake",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "nextSessionId",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "openSession",
+      "inputs": [
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "wager",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "playerKeyCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "requiredAdditionalBurn",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "action",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "additionalBurn",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "submitActionProof",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "newPlayerStateCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "dealerStateCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "playerCiphertextRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "dealerCiphertextRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "publicState",
+          "type": "tuple",
+          "internalType": "struct BlackjackEngine.PublicSessionState",
+          "components": [
+            {
+              "name": "phase",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "decisionType",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "handCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "activeHandIndex",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekResolved",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerHasBlackjack",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerUpValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "dealerFinalValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "payout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insuranceStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insurancePayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "hands",
+              "type": "tuple[4]",
+              "internalType": "struct BlackjackEngine.HandView[4]",
+              "components": [
+                {
+                  "name": "wager",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "value",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "status",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "allowedActionMask",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardCount",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardStartIndex",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "payoutKind",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                }
+              ]
+            },
+            {
+              "name": "playerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            }
+          ]
+        },
+        {
+          "name": "proof",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "submitInitialDealProof",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "deckCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "handNonce",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "playerStateCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "dealerStateCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "playerCiphertextRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "dealerCiphertextRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "publicState",
+          "type": "tuple",
+          "internalType": "struct BlackjackEngine.PublicSessionState",
+          "components": [
+            {
+              "name": "phase",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "decisionType",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "handCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "activeHandIndex",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekResolved",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerHasBlackjack",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerUpValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "dealerFinalValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "payout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insuranceStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insurancePayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "hands",
+              "type": "tuple[4]",
+              "internalType": "struct BlackjackEngine.HandView[4]",
+              "components": [
+                {
+                  "name": "wager",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "value",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "status",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "allowedActionMask",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardCount",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardStartIndex",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "payoutKind",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                }
+              ]
+            },
+            {
+              "name": "playerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            }
+          ]
+        },
+        {
+          "name": "proof",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "submitPeekProof",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "playerStateCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "dealerStateCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "playerCiphertextRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "dealerCiphertextRef",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "publicState",
+          "type": "tuple",
+          "internalType": "struct BlackjackEngine.PublicSessionState",
+          "components": [
+            {
+              "name": "phase",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "decisionType",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "handCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "activeHandIndex",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekResolved",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerHasBlackjack",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerUpValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "dealerFinalValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "payout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insuranceStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insurancePayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "hands",
+              "type": "tuple[4]",
+              "internalType": "struct BlackjackEngine.HandView[4]",
+              "components": [
+                {
+                  "name": "wager",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "value",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "status",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "allowedActionMask",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardCount",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardStartIndex",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "payoutKind",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                }
+              ]
+            },
+            {
+              "name": "playerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            }
+          ]
+        },
+        {
+          "name": "proof",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "submitShowdownProof",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "playerStateCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "dealerStateCommitment",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "publicState",
+          "type": "tuple",
+          "internalType": "struct BlackjackEngine.PublicSessionState",
+          "components": [
+            {
+              "name": "phase",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "decisionType",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerRevealMask",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "handCount",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "activeHandIndex",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "peekResolved",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerHasBlackjack",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "insuranceStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderAvailable",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "surrenderStatus",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "dealerUpValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "dealerFinalValue",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "payout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insuranceStake",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "insurancePayout",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "hands",
+              "type": "tuple[4]",
+              "internalType": "struct BlackjackEngine.HandView[4]",
+              "components": [
+                {
+                  "name": "wager",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "value",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "status",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "allowedActionMask",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardCount",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "cardStartIndex",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                },
+                {
+                  "name": "payoutKind",
+                  "type": "uint8",
+                  "internalType": "uint8"
+                }
+              ]
+            },
+            {
+              "name": "playerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            },
+            {
+              "name": "dealerCards",
+              "type": "uint8[]",
+              "internalType": "uint8[]"
+            }
+          ]
+        },
+        {
+          "name": "proof",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "surrender",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "event",
+      "name": "ActionDeclared",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "action",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "uint8"
+        },
+        {
+          "name": "additionalBurn",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "ActionResolved",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "action",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "uint8"
+        },
+        {
+          "name": "nextPhase",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "ContinueDeclared",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "phase",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "uint8"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "InitialDealResolved",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "phase",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "uint8"
+        },
+        {
+          "name": "dealerUpValue",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "InsuranceDeclared",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "PeekResolved",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "phase",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "uint8"
+        },
+        {
+          "name": "dealerHasBlackjack",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "PlayerTimeoutClaimed",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "phase",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "uint8"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "SessionOpened",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "wager",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "playRef",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "ShowdownResolved",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "SurrenderResolved",
+      "inputs": [
+        {
+          "name": "sessionId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "player",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "payout",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    }
   ]
 } as const;
 export const contractNames = [
@@ -18773,7 +20972,8 @@ export const contractNames = [
   "SlotMachineEngine",
   "SuperBaccaratEngine",
   "CheminDeFerEngine",
-  "ICheminDeFerEngine"
+  "ICheminDeFerEngine",
+  "BlackjackEngine"
 ] as const;
 export const deploymentOutputLabelGroups = {
   "core": [
@@ -18804,7 +21004,8 @@ export const deploymentOutputLabelGroups = {
     "SingleDeckBlackjackEngine",
     "SlotMachineEngine",
     "SuperBaccaratEngine",
-    "CheminDeFerEngine"
+    "CheminDeFerEngine",
+    "BlackjackEngine"
   ],
   "verifiers": [
     "TournamentPokerVerifierBundle",
@@ -18855,6 +21056,7 @@ export const deploymentOutputLabels = [
   "SlotMachineEngine",
   "SuperBaccaratEngine",
   "CheminDeFerEngine",
+  "BlackjackEngine",
   "TournamentPokerVerifierBundle",
   "PvPPokerVerifierBundle",
   "BlackjackVerifierBundle",
@@ -18896,6 +21098,7 @@ export const contractDeploymentLabels = [
   "SlotMachineEngine",
   "SuperBaccaratEngine",
   "CheminDeFerEngine",
+  "BlackjackEngine",
   "TournamentPokerVerifierBundle",
   "PvPPokerVerifierBundle",
   "BlackjackVerifierBundle"

@@ -40,15 +40,15 @@ export function decodeBaccaratOutcome(value: number | bigint): BaccaratOutcomeLa
 }
 
 export function decodeBlackjackSessionPhase(value: number | bigint): BlackjackSessionPhaseLabel {
-  return lookupEnumLabel("SingleDeckBlackjackEngine.SessionPhase", value) as BlackjackSessionPhaseLabel;
+  return lookupEnumLabel("BlackjackEngine.SessionPhase", value) as BlackjackSessionPhaseLabel;
 }
 
 export function decodeBlackjackAction(value: number | bigint): BlackjackActionLabel {
-  return lookupEnumLabel("SingleDeckBlackjackEngine.Action", value) as BlackjackActionLabel;
+  return lookupEnumLabel("BlackjackEngine.Action", value) as BlackjackActionLabel;
 }
 
 export function decodeBlackjackHandPayoutKind(value: number | bigint): BlackjackHandPayoutKindLabel {
-  return lookupEnumLabel("SingleDeckBlackjackEngine.HandPayoutKind", value) as BlackjackHandPayoutKindLabel;
+  return lookupEnumLabel("BlackjackEngine.HandPayoutKind", value) as BlackjackHandPayoutKindLabel;
 }
 
 export function decodePokerMatchState(value: number | bigint): PokerMatchStateLabel {
@@ -61,7 +61,7 @@ export function decodePokerHandPhase(value: number | bigint): PokerHandPhaseLabe
 
 export function decodeBlackjackActionMask(mask: number | bigint): BlackjackActionMaskLabel[] {
   const numericMask = typeof mask === "bigint" ? Number(mask) : mask;
-  return Object.entries(enumLabels["SingleDeckBlackjackEngine.ActionMask"])
+  return Object.entries(enumLabels["BlackjackEngine.ActionMask"])
     .filter(([flag]) => (numericMask & Number(flag)) !== 0)
     .map(([, label]) => label as BlackjackActionMaskLabel);
 }

@@ -3,7 +3,12 @@ import type { Address, Hex } from "viem";
 import { createContractHelpers } from "./contracts";
 import { InvalidLifecycleStateError } from "./internal/errors";
 import { isPokerPlayerClockPhase } from "./internal/enums";
-import type { CreateScuroClientOptions, ScuroContractHelpers, ScuroCoordinatorHelpers } from "./internal/types";
+import type {
+  BlackjackPublicSessionState,
+  CreateScuroClientOptions,
+  ScuroContractHelpers,
+  ScuroCoordinatorHelpers
+} from "./internal/types";
 
 export interface PokerInitialDealProof {
   deckCommitment: Hex;
@@ -41,20 +46,7 @@ export interface BlackjackInitialDealProof {
   dealerStateCommitment: Hex;
   playerCiphertextRef: Hex;
   dealerCiphertextRef: Hex;
-  dealerVisibleValue: bigint;
-  playerCards: readonly [number, number, number, number, number, number, number, number];
-  dealerCards: readonly [number, number, number, number];
-  handCount: number;
-  activeHandIndex: number;
-  payout: bigint;
-  immediateResultCode: number;
-  handValues: readonly [bigint, bigint, bigint, bigint];
-  handStatuses: readonly [number, number, number, number];
-  allowedActionMasks: readonly [number, number, number, number];
-  handCardCounts: readonly [number, number, number, number];
-  handPayoutKinds: readonly [number, number, number, number];
-  dealerRevealMask: number;
-  softMask: bigint;
+  publicState: BlackjackPublicSessionState;
   proof: Hex;
 }
 
@@ -65,19 +57,19 @@ export interface BlackjackActionProof {
     dealerStateCommitment: Hex;
     playerCiphertextRef: Hex;
     dealerCiphertextRef: Hex;
-    dealerVisibleValue: bigint;
-    playerCards: readonly [number, number, number, number, number, number, number, number];
-    dealerCards: readonly [number, number, number, number];
-    handCount: number;
-    activeHandIndex: number;
-    nextPhase: number;
-    handValues: readonly [bigint, bigint, bigint, bigint];
-    handStatuses: readonly [number, number, number, number];
-    allowedActionMasks: readonly [number, number, number, number];
-    handCardCounts: readonly [number, number, number, number];
-    handPayoutKinds: readonly [number, number, number, number];
-    dealerRevealMask: number;
-    softMask: bigint;
+    publicState: BlackjackPublicSessionState;
+    proof: Hex;
+  };
+}
+
+export interface BlackjackPeekProof {
+  kind: "peek";
+  args: {
+    playerStateCommitment: Hex;
+    dealerStateCommitment: Hex;
+    playerCiphertextRef: Hex;
+    dealerCiphertextRef: Hex;
+    publicState: BlackjackPublicSessionState;
     proof: Hex;
   };
 }
@@ -87,24 +79,14 @@ export interface BlackjackShowdownProof {
   args: {
     playerStateCommitment: Hex;
     dealerStateCommitment: Hex;
-    payout: bigint;
-    dealerFinalValue: bigint;
-    playerCards: readonly [number, number, number, number, number, number, number, number];
-    dealerCards: readonly [number, number, number, number];
-    handCount: number;
-    activeHandIndex: number;
-    handStatuses: readonly [number, number, number, number];
-    handValues: readonly [bigint, bigint, bigint, bigint];
-    handCardCounts: readonly [number, number, number, number];
-    handPayoutKinds: readonly [number, number, number, number];
-    dealerRevealMask: number;
+    publicState: BlackjackPublicSessionState;
     proof: Hex;
   };
 }
 
 export interface BlackjackProofProvider {
   provideInitialDeal(snapshot: Awaited<ReturnType<ReturnType<typeof createContractHelpers>["inspect"]["blackjackSession"]>>): Promise<BlackjackInitialDealProof>;
-  provideNext(snapshot: Awaited<ReturnType<ReturnType<typeof createContractHelpers>["inspect"]["blackjackSession"]>>): Promise<BlackjackActionProof | BlackjackShowdownProof>;
+  provideNext(snapshot: Awaited<ReturnType<ReturnType<typeof createContractHelpers>["inspect"]["blackjackSession"]>>): Promise<BlackjackActionProof | BlackjackShowdownProof | BlackjackPeekProof>;
 }
 
 export interface CoordinatorStepResult {
@@ -242,18 +224,28 @@ export function createBlackjackCoordinator(args: {
       return { status: "submitted", action: "submit-blackjack-initial-deal-proof", txHash };
     }
 
-    if (current.phaseLabel === "AwaitingCoordinator") {
+    if (current.phaseLabel === "AwaitingCoordinatorAction" || current.phaseLabel === "AwaitingPeekResolution") {
       const nextProof = await args.proofProvider.provideNext(current);
       if (nextProof.kind === "action") {
         const txHash = await args.contracts.write.blackjackSubmitActionProof(sessionId, nextProof.args);
         return { status: "submitted", action: "submit-blackjack-action-proof", txHash };
       }
 
+      if (nextProof.kind === "peek") {
+        const txHash = await args.contracts.write.blackjackSubmitPeekProof(sessionId, nextProof.args);
+        return { status: "submitted", action: "submit-blackjack-peek-proof", txHash };
+      }
+
       const txHash = await args.contracts.write.blackjackSubmitShowdownProof(sessionId, nextProof.args);
       return { status: "submitted", action: "submit-blackjack-showdown-proof", txHash };
     }
 
-    if (current.phaseLabel === "AwaitingPlayerAction" && (current.session as any).deadlineAt <= now) {
+    const isTimeoutPhase =
+      current.phaseLabel === "AwaitingPrePlayDecision" ||
+      current.phaseLabel === "AwaitingPostPeekDecision" ||
+      current.phaseLabel === "AwaitingPlayerAction";
+
+    if (isTimeoutPhase && (current.session as any).deadlineAt <= now) {
       const txHash = await args.contracts.write.blackjackClaimTimeout(sessionId);
       return { status: "submitted", action: "claim-blackjack-timeout", txHash };
     }

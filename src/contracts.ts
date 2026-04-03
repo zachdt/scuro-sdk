@@ -14,6 +14,7 @@ import {
   cheminDeFerControllerAbi,
   cheminDeFerEngineAbi,
   blackjackControllerAbi,
+  blackjackEngineAbi,
   blackjackVerifierBundleAbi,
   developerExpressionRegistryAbi,
   developerRewardsAbi,
@@ -166,7 +167,7 @@ function createInstances({ publicClient, walletClient, deployment }: ContractCon
       descriptor(requireDeploymentAddress(deployment, "PvPPokerVerifierBundle"), pokerVerifierBundleAbi as Abi),
     blackjackController: () => descriptor(requireDeploymentAddress(deployment, "BlackjackController"), blackjackControllerAbi as Abi),
     blackjackEngine: () =>
-      descriptor(requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"), singleDeckBlackjackEngineAbi as Abi),
+      descriptor(requireDeploymentAddress(deployment, "BlackjackEngine"), blackjackEngineAbi as Abi),
     blackjackVerifierBundle: () =>
       descriptor(requireDeploymentAddress(deployment, "BlackjackVerifierBundle"), blackjackVerifierBundleAbi as Abi)
   };
@@ -207,7 +208,7 @@ export function decodeScuroEventLog(
     TournamentController: tournamentControllerAbi,
     PvPController: pvPControllerAbi,
     BlackjackController: blackjackControllerAbi,
-    SingleDeckBlackjackEngine: singleDeckBlackjackEngineAbi,
+    BlackjackEngine: blackjackEngineAbi,
     PokerVerifierBundle: pokerVerifierBundleAbi,
     BlackjackVerifierBundle: blackjackVerifierBundleAbi
   } as Record<string, Abi>;
@@ -696,22 +697,22 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
     blackjack: {
       session: (sessionId: bigint) =>
         options.publicClient.readContract({
-          address: requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"),
-          abi: singleDeckBlackjackEngineAbi as Abi,
+          address: requireDeploymentAddress(deployment, "BlackjackEngine"),
+          abi: blackjackEngineAbi as Abi,
           functionName: "getSession",
           args: [sessionId]
         }),
       settlementOutcome: (sessionId: bigint) =>
         options.publicClient.readContract({
-          address: requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"),
-          abi: singleDeckBlackjackEngineAbi as Abi,
+          address: requireDeploymentAddress(deployment, "BlackjackEngine"),
+          abi: blackjackEngineAbi as Abi,
           functionName: "getSettlementOutcome",
           args: [sessionId]
         }),
       requiredAdditionalBurn: (sessionId: bigint, action: number) =>
         options.publicClient.readContract({
-          address: requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"),
-          abi: singleDeckBlackjackEngineAbi as Abi,
+          address: requireDeploymentAddress(deployment, "BlackjackEngine"),
+          abi: blackjackEngineAbi as Abi,
           functionName: "requiredAdditionalBurn",
           args: [sessionId, action]
         }),
@@ -1024,24 +1025,11 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         dealerStateCommitment: Hex;
         playerCiphertextRef: Hex;
         dealerCiphertextRef: Hex;
-        dealerVisibleValue: bigint;
-        playerCards: readonly [number, number, number, number, number, number, number, number];
-        dealerCards: readonly [number, number, number, number];
-        handCount: number;
-        activeHandIndex: number;
-        payout: bigint;
-        immediateResultCode: number;
-        handValues: readonly [bigint, bigint, bigint, bigint];
-        handStatuses: readonly [number, number, number, number];
-        allowedActionMasks: readonly [number, number, number, number];
-        handCardCounts: readonly [number, number, number, number];
-        handPayoutKinds: readonly [number, number, number, number];
-        dealerRevealMask: number;
-        softMask: bigint;
+        publicState: any;
         proof: Hex;
       }
     ) =>
-      buildTx(requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"), singleDeckBlackjackEngineAbi as Abi, "submitInitialDealProof", [
+      buildTx(requireDeploymentAddress(deployment, "BlackjackEngine"), blackjackEngineAbi as Abi, "submitInitialDealProof", [
         sessionId,
         args.deckCommitment,
         args.handNonce,
@@ -1049,20 +1037,7 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.dealerStateCommitment,
         args.playerCiphertextRef,
         args.dealerCiphertextRef,
-        args.dealerVisibleValue,
-        args.playerCards,
-        args.dealerCards,
-        args.handCount,
-        args.activeHandIndex,
-        args.payout,
-        args.immediateResultCode,
-        args.handValues,
-        args.handStatuses,
-        args.allowedActionMasks,
-        args.handCardCounts,
-        args.handPayoutKinds,
-        args.dealerRevealMask,
-        args.softMask,
+        args.publicState,
         args.proof
       ]),
     blackjackSubmitActionProof: (
@@ -1072,41 +1047,17 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         dealerStateCommitment: Hex;
         playerCiphertextRef: Hex;
         dealerCiphertextRef: Hex;
-        dealerVisibleValue: bigint;
-        playerCards: readonly [number, number, number, number, number, number, number, number];
-        dealerCards: readonly [number, number, number, number];
-        handCount: number;
-        activeHandIndex: number;
-        nextPhase: number;
-        handValues: readonly [bigint, bigint, bigint, bigint];
-        handStatuses: readonly [number, number, number, number];
-        allowedActionMasks: readonly [number, number, number, number];
-        handCardCounts: readonly [number, number, number, number];
-        handPayoutKinds: readonly [number, number, number, number];
-        dealerRevealMask: number;
-        softMask: bigint;
+        publicState: any;
         proof: Hex;
       }
     ) =>
-      buildTx(requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"), singleDeckBlackjackEngineAbi as Abi, "submitActionProof", [
+      buildTx(requireDeploymentAddress(deployment, "BlackjackEngine"), blackjackEngineAbi as Abi, "submitActionProof", [
         sessionId,
         args.newPlayerStateCommitment,
         args.dealerStateCommitment,
         args.playerCiphertextRef,
         args.dealerCiphertextRef,
-        args.dealerVisibleValue,
-        args.playerCards,
-        args.dealerCards,
-        args.handCount,
-        args.activeHandIndex,
-        args.nextPhase,
-        args.handValues,
-        args.handStatuses,
-        args.allowedActionMasks,
-        args.handCardCounts,
-        args.handPayoutKinds,
-        args.dealerRevealMask,
-        args.softMask,
+        args.publicState,
         args.proof
       ]),
     blackjackSubmitShowdownProof: (
@@ -1114,35 +1065,35 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
       args: {
         playerStateCommitment: Hex;
         dealerStateCommitment: Hex;
-        payout: bigint;
-        dealerFinalValue: bigint;
-        playerCards: readonly [number, number, number, number, number, number, number, number];
-        dealerCards: readonly [number, number, number, number];
-        handCount: number;
-        activeHandIndex: number;
-        handStatuses: readonly [number, number, number, number];
-        handValues: readonly [bigint, bigint, bigint, bigint];
-        handCardCounts: readonly [number, number, number, number];
-        handPayoutKinds: readonly [number, number, number, number];
-        dealerRevealMask: number;
+        publicState: any;
         proof: Hex;
       }
     ) =>
-      buildTx(requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"), singleDeckBlackjackEngineAbi as Abi, "submitShowdownProof", [
+      buildTx(requireDeploymentAddress(deployment, "BlackjackEngine"), blackjackEngineAbi as Abi, "submitShowdownProof", [
         sessionId,
         args.playerStateCommitment,
         args.dealerStateCommitment,
-        args.payout,
-        args.dealerFinalValue,
-        args.playerCards,
-        args.dealerCards,
-        args.handCount,
-        args.activeHandIndex,
-        args.handStatuses,
-        args.handValues,
-        args.handCardCounts,
-        args.handPayoutKinds,
-        args.dealerRevealMask,
+        args.publicState,
+        args.proof
+      ]),
+    blackjackSubmitPeekProof: (
+      sessionId: bigint,
+      args: {
+        playerStateCommitment: Hex;
+        dealerStateCommitment: Hex;
+        playerCiphertextRef: Hex;
+        dealerCiphertextRef: Hex;
+        publicState: any;
+        proof: Hex;
+      }
+    ) =>
+      buildTx(requireDeploymentAddress(deployment, "BlackjackEngine"), blackjackEngineAbi as Abi, "submitPeekProof", [
+        sessionId,
+        args.playerStateCommitment,
+        args.dealerStateCommitment,
+        args.playerCiphertextRef,
+        args.dealerCiphertextRef,
+        args.publicState,
         args.proof
       ]),
     deployNumberPickerModule: (params: Parameters<typeof encodeNumberPickerDeployment>[0]) =>
@@ -1388,7 +1339,7 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         [gameId]
       ),
     blackjackSubmitInitialDealProof: (sessionId: bigint, args: Parameters<typeof encode.blackjackSubmitInitialDealProof>[1]) =>
-      writeContract(options.walletClient, requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"), singleDeckBlackjackEngineAbi as Abi, "submitInitialDealProof", [
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "BlackjackEngine"), blackjackEngineAbi as Abi, "submitInitialDealProof", [
         sessionId,
         args.deckCommitment,
         args.handNonce,
@@ -1396,60 +1347,35 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
         args.dealerStateCommitment,
         args.playerCiphertextRef,
         args.dealerCiphertextRef,
-        args.dealerVisibleValue,
-        args.playerCards,
-        args.dealerCards,
-        args.handCount,
-        args.activeHandIndex,
-        args.payout,
-        args.immediateResultCode,
-        args.handValues,
-        args.handStatuses,
-        args.allowedActionMasks,
-        args.handCardCounts,
-        args.handPayoutKinds,
-        args.dealerRevealMask,
-        args.softMask,
+        args.publicState,
         args.proof
       ]),
     blackjackSubmitActionProof: (sessionId: bigint, args: Parameters<typeof encode.blackjackSubmitActionProof>[1]) =>
-      writeContract(options.walletClient, requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"), singleDeckBlackjackEngineAbi as Abi, "submitActionProof", [
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "BlackjackEngine"), blackjackEngineAbi as Abi, "submitActionProof", [
         sessionId,
         args.newPlayerStateCommitment,
         args.dealerStateCommitment,
         args.playerCiphertextRef,
         args.dealerCiphertextRef,
-        args.dealerVisibleValue,
-        args.playerCards,
-        args.dealerCards,
-        args.handCount,
-        args.activeHandIndex,
-        args.nextPhase,
-        args.handValues,
-        args.handStatuses,
-        args.allowedActionMasks,
-        args.handCardCounts,
-        args.handPayoutKinds,
-        args.dealerRevealMask,
-        args.softMask,
+        args.publicState,
         args.proof
       ]),
     blackjackSubmitShowdownProof: (sessionId: bigint, args: Parameters<typeof encode.blackjackSubmitShowdownProof>[1]) =>
-      writeContract(options.walletClient, requireDeploymentAddress(deployment, "SingleDeckBlackjackEngine"), singleDeckBlackjackEngineAbi as Abi, "submitShowdownProof", [
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "BlackjackEngine"), blackjackEngineAbi as Abi, "submitShowdownProof", [
         sessionId,
         args.playerStateCommitment,
         args.dealerStateCommitment,
-        args.payout,
-        args.dealerFinalValue,
-        args.playerCards,
-        args.dealerCards,
-        args.handCount,
-        args.activeHandIndex,
-        args.handStatuses,
-        args.handValues,
-        args.handCardCounts,
-        args.handPayoutKinds,
-        args.dealerRevealMask,
+        args.publicState,
+        args.proof
+      ]),
+    blackjackSubmitPeekProof: (sessionId: bigint, args: Parameters<typeof encode.blackjackSubmitPeekProof>[1]) =>
+      writeContract(options.walletClient, requireDeploymentAddress(deployment, "BlackjackEngine"), blackjackEngineAbi as Abi, "submitPeekProof", [
+        sessionId,
+        args.playerStateCommitment,
+        args.dealerStateCommitment,
+        args.playerCiphertextRef,
+        args.dealerCiphertextRef,
+        args.publicState,
         args.proof
       ]),
     deployNumberPickerModule: (params: Parameters<typeof encodeNumberPickerDeployment>[0]) =>
@@ -1497,7 +1423,12 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
     ]);
     const hands = session.hands.map((hand: any) => ({
       ...hand,
+      wager: BigInt(hand.wager),
+      value: BigInt(hand.value),
+      status: Number(hand.status),
+      allowedActionMask: Number(hand.allowedActionMask),
       cardCount: Number(hand.cardCount),
+      cardStartIndex: Number(hand.cardStartIndex),
       payoutKind: Number(hand.payoutKind)
     }));
     const playerCards = session.playerCards.map((card: number | bigint) => Number(card));
@@ -1508,7 +1439,21 @@ export function createContractHelpers(options: CreateScuroClientOptions): ScuroC
       hands,
       playerCards,
       dealerCards,
-      dealerRevealMask
+      dealerRevealMask,
+      phase: Number(session.phase),
+      decisionType: Number(session.decisionType),
+      peekAvailable: Number(session.peekAvailable),
+      peekResolved: Number(session.peekResolved),
+      dealerHasBlackjack: Number(session.dealerHasBlackjack),
+      insuranceAvailable: Number(session.insuranceAvailable),
+      insuranceStatus: Number(session.insuranceStatus),
+      surrenderAvailable: Number(session.surrenderAvailable),
+      surrenderStatus: Number(session.surrenderStatus),
+      dealerUpValue: BigInt(session.dealerUpValue),
+      dealerFinalValue: BigInt(session.dealerFinalValue),
+      payout: BigInt(session.payout),
+      insuranceStake: BigInt(session.insuranceStake),
+      insurancePayout: BigInt(session.insurancePayout)
     };
     const phaseLabel = decodeBlackjackSessionPhase(session.phase);
     const allowedActions = hands.map((hand: any) => decodeBlackjackActionMask(hand.allowedActionMask));

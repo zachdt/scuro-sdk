@@ -3,6 +3,7 @@
 import { abis } from "./protocol";
 
 export const blackjackControllerAbi = abis.BlackjackController;
+export const blackjackEngineAbi = abis.BlackjackEngine;
 export const blackjackVerifierBundleAbi = abis.BlackjackVerifierBundle;
 export const cheminDeFerControllerAbi = abis.CheminDeFerController;
 export const cheminDeFerEngineAbi = abis.CheminDeFerEngine;

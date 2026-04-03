@@ -45,6 +45,10 @@ export type EnumName =
   | "SingleDeckBlackjackEngine.Action"
   | "SingleDeckBlackjackEngine.ActionMask"
   | "SingleDeckBlackjackEngine.HandPayoutKind"
+  | "BlackjackEngine.SessionPhase"
+  | "BlackjackEngine.Action"
+  | "BlackjackEngine.ActionMask"
+  | "BlackjackEngine.HandPayoutKind"
   | "SingleDraw2To7Engine.MatchState"
   | "SingleDraw2To7Engine.HandPhase";
 
@@ -55,8 +59,11 @@ export type BaccaratOutcomeLabel = "PlayerWin" | "BankerWin" | "Tie";
 export type BlackjackSessionPhaseLabel =
   | "Inactive"
   | "AwaitingInitialDeal"
+  | "AwaitingPrePlayDecision"
+  | "AwaitingPeekResolution"
+  | "AwaitingPostPeekDecision"
   | "AwaitingPlayerAction"
-  | "AwaitingCoordinator"
+  | "AwaitingCoordinatorAction"
   | "Completed";
 export type BlackjackActionLabel = "ACTION_HIT" | "ACTION_STAND" | "ACTION_DOUBLE" | "ACTION_SPLIT";
 export type BlackjackActionMaskLabel = "ALLOW_HIT" | "ALLOW_STAND" | "ALLOW_DOUBLE" | "ALLOW_SPLIT";
@@ -66,7 +73,7 @@ export type BlackjackHandPayoutKindLabel =
   | "HAND_PAYOUT_PUSH"
   | "HAND_PAYOUT_EVEN_MONEY"
   | "HAND_PAYOUT_BLACKJACK_3_TO_2"
-  | "HAND_PAYOUT_SUITED_BLACKJACK_2_TO_1";
+  | "HAND_PAYOUT_SURRENDER";
 export type PokerMatchStateLabel = "Inactive" | "Active" | "Completed";
 export type PokerHandPhaseLabel =
   | "None"
@@ -92,6 +99,44 @@ export interface DecodedBlackjackCardProxy {
   isEmpty: boolean;
   rank: BlackjackCardRank | null;
   suit: BlackjackCardSuit | null;
+}
+
+export interface BlackjackHandView {
+  wager: bigint;
+  value: bigint;
+  status: number;
+  allowedActionMask: number;
+  cardCount: number;
+  cardStartIndex: number;
+  payoutKind: number;
+}
+
+export interface BlackjackPublicSessionState {
+  phase: number;
+  decisionType: number;
+  dealerRevealMask: number;
+  handCount: number;
+  activeHandIndex: number;
+  peekAvailable: number;
+  peekResolved: number;
+  dealerHasBlackjack: number;
+  insuranceAvailable: number;
+  insuranceStatus: number;
+  surrenderAvailable: number;
+  surrenderStatus: number;
+  dealerUpValue: bigint;
+  dealerFinalValue: bigint;
+  payout: bigint;
+  insuranceStake: bigint;
+  insurancePayout: bigint;
+  hands: readonly [
+    BlackjackHandView,
+    BlackjackHandView,
+    BlackjackHandView,
+    BlackjackHandView
+  ];
+  playerCards: readonly number[];
+  dealerCards: readonly number[];
 }
 
 export interface DecodedBlackjackDealerRevealMask {

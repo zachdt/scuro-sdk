@@ -13,7 +13,7 @@ import {
 } from "../src/contracts";
 import {
   cheminDeFerControllerAbi,
-  singleDeckBlackjackEngineAbi,
+  blackjackEngineAbi,
   slotMachineEngineAbi,
   superBaccaratControllerAbi
 } from "../src/generated/abis";
@@ -196,17 +196,30 @@ describe("contract helpers", () => {
             switch (functionName) {
               case "getSession":
                 return {
-                  phase: 2,
+                  phase: 5,
                   activeHandIndex: 0,
                   dealerRevealMask: 0b0001,
-                  playerCards: [9, 22, 35, 48, 52, 52, 52, 52],
-                  dealerCards: [12, 52, 52, 52],
+                  playerCards: [9, 22, 35, 48, 104, 104, 104, 104],
+                  dealerCards: [12, 104, 104, 104],
                   hands: [
-                    { wager: 10n, value: 21n, status: 1, allowedActionMask: 0, cardCount: 2, payoutKind: 4 },
-                    { wager: 10n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, payoutKind: 0 },
-                    { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, payoutKind: 0 },
-                    { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, payoutKind: 0 }
-                  ]
+                    { wager: 10n, value: 21n, status: 1, allowedActionMask: 0, cardCount: 2, cardStartIndex: 0, payoutKind: 4 },
+                    { wager: 10n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 },
+                    { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 },
+                    { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 }
+                  ],
+                  decisionType: 0,
+                  peekAvailable: 0,
+                  peekResolved: 0,
+                  dealerHasBlackjack: 0,
+                  insuranceAvailable: 0,
+                  insuranceStatus: 0,
+                  surrenderAvailable: 0,
+                  surrenderStatus: 0,
+                  dealerUpValue: 10n,
+                  dealerFinalValue: 0n,
+                  payout: 0n,
+                  insuranceStake: 0n,
+                  insurancePayout: 0n
                 };
               case "getSettlementOutcome":
                 return { completed: false, payout: 0n, totalBurned: 10n, player: dummyAddresses.Player1 };
@@ -223,8 +236,8 @@ describe("contract helpers", () => {
 
     const snapshot = await contracts.inspect.blackjackSession(1n);
     expect(snapshot.phaseLabel).toBe("AwaitingPlayerAction");
-    expect(snapshot.playerCards).toEqual([9, 22, 35, 48, 52, 52, 52, 52]);
-    expect(snapshot.dealerCards).toEqual([12, 52, 52, 52]);
+    expect(snapshot.playerCards).toEqual([9, 22, 35, 48, 104, 104, 104, 104]);
+    expect(snapshot.dealerCards).toEqual([12, 104, 104, 104]);
     expect(snapshot.dealerRevealMask).toBe(0b0001);
     expect(snapshot.hands[0].cardCount).toBe(2);
     expect(snapshot.hands[0].payoutKind).toBe(4);
@@ -240,65 +253,87 @@ describe("contract helpers", () => {
       dealerStateCommitment: ("0x" + "14".repeat(32)) as Hex,
       playerCiphertextRef: ("0x" + "15".repeat(32)) as Hex,
       dealerCiphertextRef: ("0x" + "16".repeat(32)) as Hex,
-      dealerVisibleValue: 10n,
-      playerCards: [0, 1, 2, 3, 52, 52, 52, 52],
-      dealerCards: [12, 52, 52, 52],
-      handCount: 1,
-      activeHandIndex: 0,
-      payout: 15n,
-      immediateResultCode: 0,
-      handValues: [21n, 0n, 0n, 0n],
-      handStatuses: [1, 0, 0, 0],
-      allowedActionMasks: [0, 0, 0, 0],
-      handCardCounts: [2, 0, 0, 0],
-      handPayoutKinds: [4, 0, 0, 0],
-      dealerRevealMask: 0b0001,
-      softMask: 0n,
+      publicState: {
+        phase: 5,
+        decisionType: 0,
+        dealerRevealMask: 0b0001,
+        handCount: 1,
+        activeHandIndex: 0,
+        peekAvailable: 0,
+        peekResolved: 0,
+        dealerHasBlackjack: 0,
+        insuranceAvailable: 0,
+        insuranceStatus: 0,
+        surrenderAvailable: 0,
+        surrenderStatus: 0,
+        dealerUpValue: 10n,
+        dealerFinalValue: 0n,
+        payout: 15n,
+        insuranceStake: 0n,
+        insurancePayout: 0n,
+        hands: [
+          { wager: 10n, value: 21n, status: 1, allowedActionMask: 0, cardCount: 2, cardStartIndex: 0, payoutKind: 4 },
+          { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 },
+          { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 },
+          { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 }
+        ],
+        playerCards: [0, 1, 2, 3, 104, 104, 104, 104],
+        dealerCards: [12, 104, 104, 104]
+      },
       proof: "0x1234"
     });
     const decodedInitial = decodeFunctionData({
-      abi: singleDeckBlackjackEngineAbi,
+      abi: blackjackEngineAbi,
       data: initialDeal.data
     });
-    const initialArgs = decodedInitial.args as readonly unknown[];
+    const initialArgs = decodedInitial.args as readonly any[];
 
     expect(decodedInitial.functionName).toBe("submitInitialDealProof");
-    expect(initialArgs[8]).toEqual([0, 1, 2, 3, 52, 52, 52, 52]);
-    expect(initialArgs[9]).toEqual([12, 52, 52, 52]);
-    expect(initialArgs[16]).toEqual([0, 0, 0, 0]);
-    expect(initialArgs[17]).toEqual([2, 0, 0, 0]);
-    expect(initialArgs[18]).toEqual([4, 0, 0, 0]);
-    expect(initialArgs[19]).toBe(1);
+    expect(initialArgs[7].playerCards).toEqual([0, 1, 2, 3, 104, 104, 104, 104]);
+    expect(initialArgs[7].dealerCards).toEqual([12, 104, 104, 104]);
+    expect(initialArgs[7].hands[0].payoutKind).toBe(4);
 
     const showdown = contracts.encode.blackjackSubmitShowdownProof(1n, {
       playerStateCommitment: ("0x" + "21".repeat(32)) as Hex,
       dealerStateCommitment: ("0x" + "22".repeat(32)) as Hex,
-      payout: 20n,
-      dealerFinalValue: 18n,
-      playerCards: [0, 1, 2, 3, 4, 5, 52, 52],
-      dealerCards: [11, 24, 52, 52],
-      handCount: 2,
-      activeHandIndex: 1,
-      handStatuses: [1, 2, 0, 0],
-      handValues: [21n, 18n, 0n, 0n],
-      handCardCounts: [2, 3, 0, 0],
-      handPayoutKinds: [4, 2, 0, 0],
-      dealerRevealMask: 0b0011,
+      publicState: {
+        phase: 7,
+        decisionType: 0,
+        dealerRevealMask: 0b0011,
+        handCount: 2,
+        activeHandIndex: 1,
+        peekAvailable: 0,
+        peekResolved: 0,
+        dealerHasBlackjack: 0,
+        insuranceAvailable: 0,
+        insuranceStatus: 0,
+        surrenderAvailable: 0,
+        surrenderStatus: 0,
+        dealerUpValue: 10n,
+        dealerFinalValue: 18n,
+        payout: 20n,
+        insuranceStake: 0n,
+        insurancePayout: 0n,
+        hands: [
+          { wager: 10n, value: 21n, status: 1, allowedActionMask: 0, cardCount: 2, cardStartIndex: 0, payoutKind: 4 },
+          { wager: 10n, value: 18n, status: 2, allowedActionMask: 0, cardCount: 3, cardStartIndex: 2, payoutKind: 2 },
+          { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 },
+          { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 }
+        ],
+        playerCards: [0, 1, 2, 3, 4, 104, 104, 104],
+        dealerCards: [11, 24, 104, 104]
+      },
       proof: "0xabcd"
     });
     const decodedShowdown = decodeFunctionData({
-      abi: singleDeckBlackjackEngineAbi,
+      abi: blackjackEngineAbi,
       data: showdown.data
     });
-    const showdownArgs = decodedShowdown.args as readonly unknown[];
+    const showdownArgs = decodedShowdown.args as readonly any[];
 
     expect(decodedShowdown.functionName).toBe("submitShowdownProof");
-    expect(showdownArgs[5]).toEqual([0, 1, 2, 3, 4, 5, 52, 52]);
-    expect(showdownArgs[6]).toEqual([11, 24, 52, 52]);
-    expect(showdownArgs[10]).toEqual([21n, 18n, 0n, 0n]);
-    expect(showdownArgs[11]).toEqual([2, 3, 0, 0]);
-    expect(showdownArgs[12]).toEqual([4, 2, 0, 0]);
-    expect(showdownArgs[13]).toBe(3);
+    expect(showdownArgs[3].dealerFinalValue).toBe(18n);
+    expect(showdownArgs[3].hands[1].status).toBe(2);
   });
 
   test("write blackjack v2 proof helpers forward expanded args", async () => {
@@ -321,27 +356,41 @@ describe("contract helpers", () => {
       dealerStateCommitment: ("0x" + "32".repeat(32)) as Hex,
       playerCiphertextRef: ("0x" + "33".repeat(32)) as Hex,
       dealerCiphertextRef: ("0x" + "34".repeat(32)) as Hex,
-      dealerVisibleValue: 9n,
-      playerCards: [0, 1, 2, 3, 4, 52, 52, 52],
-      dealerCards: [10, 52, 52, 52],
-      handCount: 2,
-      activeHandIndex: 1,
-      nextPhase: 3,
-      handValues: [11n, 20n, 0n, 0n],
-      handStatuses: [1, 1, 0, 0],
-      allowedActionMasks: [1, 2, 0, 0],
-      handCardCounts: [2, 3, 0, 0],
-      handPayoutKinds: [0, 3, 0, 0],
-      dealerRevealMask: 0b0001,
-      softMask: 0n,
+      publicState: {
+        phase: 5,
+        decisionType: 0,
+        dealerRevealMask: 0b0001,
+        handCount: 2,
+        activeHandIndex: 1,
+        peekAvailable: 0,
+        peekResolved: 0,
+        dealerHasBlackjack: 0,
+        insuranceAvailable: 0,
+        insuranceStatus: 0,
+        surrenderAvailable: 0,
+        surrenderStatus: 0,
+        dealerUpValue: 9n,
+        dealerFinalValue: 0n,
+        payout: 0n,
+        insuranceStake: 0n,
+        insurancePayout: 0n,
+        hands: [
+          { wager: 10n, value: 11n, status: 1, allowedActionMask: 1, cardCount: 2, cardStartIndex: 0, payoutKind: 0 },
+          { wager: 10n, value: 20n, status: 1, allowedActionMask: 2, cardCount: 3, cardStartIndex: 2, payoutKind: 3 },
+          { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 },
+          { wager: 0n, value: 0n, status: 0, allowedActionMask: 0, cardCount: 0, cardStartIndex: 0, payoutKind: 0 }
+        ],
+        playerCards: [0, 1, 2, 3, 4, 104, 104, 104],
+        dealerCards: [10, 104, 104, 104]
+      },
       proof: "0xbeef"
     });
 
-    const forwardedArgs = capturedWrite.args as unknown[];
-    expect(forwardedArgs[6]).toEqual([0, 1, 2, 3, 4, 52, 52, 52]);
-    expect(forwardedArgs[7]).toEqual([10, 52, 52, 52]);
-    expect(forwardedArgs[14]).toEqual([2, 3, 0, 0]);
-    expect(forwardedArgs[15]).toEqual([0, 3, 0, 0]);
-    expect(forwardedArgs[16]).toBe(0b0001);
+    const forwardedArgs = capturedWrite.args as any[];
+    expect(forwardedArgs[5].playerCards).toEqual([0, 1, 2, 3, 4, 104, 104, 104]);
+    expect(forwardedArgs[5].dealerCards).toEqual([10, 104, 104, 104]);
+    expect(forwardedArgs[5].hands[1].cardCount).toBe(3);
+    expect(forwardedArgs[5].hands[1].payoutKind).toBe(3);
+    expect(forwardedArgs[5].dealerRevealMask).toBe(0b0001);
   });
 });

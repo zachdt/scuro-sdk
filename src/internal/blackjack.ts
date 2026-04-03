@@ -7,7 +7,7 @@ import type {
   DecodedBlackjackDealerRevealMask
 } from "./types";
 
-export const BLACKJACK_CARD_EMPTY = 52 as const;
+export const BLACKJACK_CARD_EMPTY = 104 as const;
 
 function toNumber(value: number | bigint) {
   return typeof value === "bigint" ? Number(value) : value;
@@ -36,7 +36,7 @@ export function decodeCardProxy(card: number | bigint): DecodedBlackjackCardProx
     raw,
     isEmpty: false,
     rank: (raw % 13) as BlackjackCardRank,
-    suit: Math.floor(raw / 13) as BlackjackCardSuit
+    suit: (Math.floor(raw / 13) % 4) as BlackjackCardSuit
   };
 }
 
@@ -57,20 +57,18 @@ export function decodeBlackjackDealerRevealMask(mask: number | bigint): DecodedB
 
 export function groupBlackjackPlayerCards(
   playerCards: readonly (number | bigint)[],
-  handCardCounts: readonly (number | bigint)[]
+  hands: readonly { cardCount: number | bigint; cardStartIndex: number | bigint }[]
 ): BlackjackGroupedPlayerCards {
   const normalizedCards = playerCards.map((card) => {
     const raw = toNumber(card);
     assertCardProxy(raw);
     return raw;
   });
-  const counts = handCardCounts.map((count) => Math.max(0, toNumber(count)));
 
-  let offset = 0;
-  const grouped = counts.map((count) => {
-    const cards = normalizedCards.slice(offset, offset + count);
-    offset += count;
-    return cards;
+  const grouped = hands.map((hand) => {
+    const count = Math.max(0, toNumber(hand.cardCount));
+    const start = toNumber(hand.cardStartIndex);
+    return normalizedCards.slice(start, start + count);
   });
 
   while (grouped.length < 4) {

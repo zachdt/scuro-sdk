@@ -54,6 +54,13 @@ export const supplementalContracts = [
     source: "src/interfaces/ICheminDeFerEngine.sol",
     reference_doc: "docs/reference/gameplay-interfaces.md",
     artifact: "out/ICheminDeFerEngine.sol/ICheminDeFerEngine.json"
+  },
+  {
+    name: "BlackjackEngine",
+    category: "engine",
+    source: "src/engines/BlackjackEngine.sol",
+    reference_doc: "docs/reference/blackjack-engine.md",
+    artifact: "out/BlackjackEngine.sol/BlackjackEngine.json"
   }
 ];
 
@@ -67,11 +74,41 @@ export const supplementalEnumLabels = {
     "0": "PlayerWin",
     "1": "BankerWin",
     "2": "Tie"
+  },
+  "BlackjackEngine.SessionPhase": {
+    "0": "Inactive",
+    "1": "AwaitingInitialDeal",
+    "2": "AwaitingPrePlayDecision",
+    "3": "AwaitingPeekResolution",
+    "4": "AwaitingPostPeekDecision",
+    "5": "AwaitingPlayerAction",
+    "6": "AwaitingCoordinatorAction",
+    "7": "Completed"
+  },
+  "BlackjackEngine.HandPayoutKind": {
+    "0": "HAND_PAYOUT_NONE",
+    "1": "HAND_PAYOUT_LOSS",
+    "2": "HAND_PAYOUT_PUSH",
+    "3": "HAND_PAYOUT_EVEN_MONEY",
+    "4": "HAND_PAYOUT_BLACKJACK_3_TO_2",
+    "5": "HAND_PAYOUT_SURRENDER"
+  },
+  "BlackjackEngine.Action": {
+    "1": "ACTION_HIT",
+    "2": "ACTION_STAND",
+    "3": "ACTION_DOUBLE",
+    "4": "ACTION_SPLIT"
+  },
+  "BlackjackEngine.ActionMask": {
+    "1": "ALLOW_HIT",
+    "2": "ALLOW_STAND",
+    "4": "ALLOW_DOUBLE",
+    "8": "ALLOW_SPLIT"
   }
 };
 
 export const supplementalDeploymentOutputLabels = {
   core: ["GameEngineRegistry"],
   controllers: ["SlotMachineController", "SuperBaccaratController", "CheminDeFerController"],
-  engines: ["SlotMachineEngine", "SuperBaccaratEngine", "CheminDeFerEngine"]
+  engines: ["SlotMachineEngine", "SuperBaccaratEngine", "CheminDeFerEngine", "BlackjackEngine"]
 };
